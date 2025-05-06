@@ -8,9 +8,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 class WifiBilling(models.Model):
     _name = 'wifi.billing'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'WiFi Billing'
 
-    name = fields.Char(string='Customer Name', required=True)
+    partner_id = fields.Many2one('res.partner',string='Customer Name', required=True)
     phone = fields.Char(string='Phone Number')
     billing_date = fields.Date(string='Billing Date', default=fields.Date.today)
     amount = fields.Float(string='Amount')
@@ -34,18 +35,28 @@ class WifiBilling(models.Model):
     def sync_to_google_sheet(self):
         client = self._get_google_client()
         worksheet = self._get_worksheet(client)
-        # Pastikan header dan kolom bulan tersedia
+        # Ensure headers and month column exist
         self._ensure_sheet_headers(worksheet)
         bulan = datetime.now().strftime('%B %Y')
         self._ensure_month_column(worksheet, bulan)
-        # Cari baris berdasarkan customer
+        # Find or create row for customer
         row_index = self._find_or_create_customer_row(worksheet)
         if self._is_duplicate_entry(worksheet):
             raise ValidationError(
-                f"Customer '{self.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
-        # Siapkan dan update nilai berdasarkan bulan
+                f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
         headers = worksheet.row_values(1)
+        if bulan not in headers:
+            raise ValidationError(f"Kolom bulan '{bulan}' tidak ditemukan di header.")
         col_index = headers.index(bulan) + 1
+        # Ensure row and column are within sheet limits
+        max_rows = worksheet.row_count
+        max_cols = worksheet.col_count
+        if row_index > max_rows:
+            worksheet.add_rows(row_index - max_rows)
+            max_rows = worksheet.row_count
+        if col_index > max_cols:
+            worksheet.add_cols(col_index - max_cols)
+            max_cols = worksheet.col_count
         value = 'Paid' if self.is_paid else 'Belum Bayar'
         worksheet.update_cell(row_index, col_index, value)
 
@@ -111,14 +122,15 @@ class WifiBilling(models.Model):
         tanggal = str(self.billing_date or fields.Date.today())
         amount = str(self.amount or "0")
         status = 'Paid' if self.is_paid else 'Belum Bayar'
-        return [self.name, self.phone, tanggal, amount, status, bulan]
+        print(bulan, tanggal,amount,status)
+        return [self.partner_id.name, self.phone, tanggal, amount, status, bulan]
 
     def _is_duplicate_entry(self, worksheet):
         bulan = datetime.now().strftime('%B %Y')
         all_records = worksheet.get_all_records()
         for record in all_records:
             if (
-                record.get('Customer Name') == self.name and
+                record.get('Customer Name') == self.partner_id.name and
                 record.get('Phone') == self.phone and
                 record.get('Bulan') == bulan
             ):
@@ -133,10 +145,10 @@ class WifiBilling(models.Model):
     def _find_or_create_customer_row(self, worksheet):
         all_records = worksheet.get_all_records()
         for idx, record in enumerate(all_records, start=2):  # Mulai dari baris ke-2
-            if record.get('Customer Name') == self.name and record.get('Phone') == self.phone:
+            if record.get('Customer Name') == self.partner_id.name and record.get('Phone') == self.phone:
                 return idx  # Return row number
-        # Jika belum ada, tambahkan
-        worksheet.append_row([self.name, self.phone])
-        return worksheet.row_count
-
-
+        # If not found, append row and return its index
+        worksheet.append_row(self._prepare_row_data())
+        # After append, get the actual last row with data
+        all_records = worksheet.get_all_records()
+        return len(all_records) + 1
