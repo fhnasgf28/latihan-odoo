@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 import requests
+import os
 from datetime import date, datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -31,27 +32,22 @@ class WifiBilling(models.Model):
             self.sync_to_google_sheet()
 
     def sync_to_google_sheet(self):
-        url = "https://script.google.com/macros/s/AKfycbwPfmAAvwJsVXmw1DmNzBvo5URkeI9-SWuseYKBQlApgD7N0b9cs9tMcl9984sbtZ85/exec"
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("/Users/farhan/odoo_custom/odoo18/xlsx_syncronize/models/odoo_spreedsheet.json", scope)
-        client = gspread.authorize(creds)
-        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1Tb4MzYw6f2wpSWTbi5m8gIFBxBfF4Ir9PYhrZ-JuxgQ/edit?usp=sharing")
-        worksheet = sheet.sheet1
-        all_records = worksheet.get_all_records()
-        print(all_records)
-        billing_month = self.billing_date.strftime('%Y-%m')
-        for record in all_records:
-            record_month = datetime.strptime(record['Billing Date'], '%Y-%m-%d').strftime('%Y-%m')
-            if (record['Customer Name'] == self.name and record['Phone'] == self.phone and record_month == billing_month):
-                raise UserError("Customer ini sudah bayar di bulan yang sama, statusnya sudah paid!")
-        # Jika aman, tambahkan ke sheet
-        worksheet.append_row([
-            self.name,
-            self.phone,
-            self.amount,
-            self.billing_date.strftime('%Y-%m-%d'),
-            'Paid'
-        ])
+        client = self._get_google_client()
+        worksheet = self._get_worksheet(client)
+        # Pastikan header dan kolom bulan tersedia
+        self._ensure_sheet_headers(worksheet)
+        bulan = datetime.now().strftime('%B %Y')
+        self._ensure_month_column(worksheet, bulan)
+        # Cari baris berdasarkan customer
+        row_index = self._find_or_create_customer_row(worksheet)
+        if self._is_duplicate_entry(worksheet):
+            raise ValidationError(
+                f"Customer '{self.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
+        # Siapkan dan update nilai berdasarkan bulan
+        headers = worksheet.row_values(1)
+        col_index = headers.index(bulan) + 1
+        value = 'Paid' if self.is_paid else 'Belum Bayar'
+        worksheet.update_cell(row_index, col_index, value)
 
     @api.model
     def create(self, vals):
@@ -87,5 +83,60 @@ class WifiBilling(models.Model):
                 rec.payment_status = 'overdue'
             else:
                 rec.payment_status = 'unpaid'
+
+    def _get_google_client(self):
+        scope = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive',
+        ]
+        creds_path = os.path.join(os.path.dirname(__file__), '..','config', 'odoo_spreedsheet.json')
+        creds_path = os.path.abspath(creds_path)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
+        print(creds)
+        return gspread.authorize(creds)
+
+    def _get_worksheet(self, client):
+        sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1Tb4MzYw6f2wpSWTbi5m8gIFBxBfF4Ir9PYhrZ-JuxgQ/edit?usp=sharing")
+        return sheet.sheet1
+
+    def _ensure_sheet_headers(self, worksheet):
+        expected_header = ['Customer Name', 'Phone', 'Tanggal Bayar', 'Amount', 'Status', 'Bulan']
+        current_headers = worksheet.row_values(1)
+        if current_headers != expected_header:
+            worksheet.delete_rows(1)
+            worksheet.insert_row(expected_header, 1)
+
+    def _prepare_row_data(self):
+        bulan = datetime.now().strftime("%B %Y")
+        tanggal = str(self.billing_date or fields.Date.today())
+        amount = str(self.amount or "0")
+        status = 'Paid' if self.is_paid else 'Belum Bayar'
+        return [self.name, self.phone, tanggal, amount, status, bulan]
+
+    def _is_duplicate_entry(self, worksheet):
+        bulan = datetime.now().strftime('%B %Y')
+        all_records = worksheet.get_all_records()
+        for record in all_records:
+            if (
+                record.get('Customer Name') == self.name and
+                record.get('Phone') == self.phone and
+                record.get('Bulan') == bulan
+            ):
+                return True
+        return False
+
+    def _ensure_month_column(self, worksheet, bulan):
+        headers = worksheet.row_values(1)
+        if bulan not in headers:
+            worksheet.update_cell(1, len(headers) + 1, bulan)
+
+    def _find_or_create_customer_row(self, worksheet):
+        all_records = worksheet.get_all_records()
+        for idx, record in enumerate(all_records, start=2):  # Mulai dari baris ke-2
+            if record.get('Customer Name') == self.name and record.get('Phone') == self.phone:
+                return idx  # Return row number
+        # Jika belum ada, tambahkan
+        worksheet.append_row([self.name, self.phone])
+        return worksheet.row_count
 
 
