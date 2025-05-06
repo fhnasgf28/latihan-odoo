@@ -59,6 +59,8 @@ class WifiBilling(models.Model):
             max_cols = worksheet.col_count
         value = 'Paid' if self.is_paid else 'Belum Bayar'
         worksheet.update_cell(row_index, col_index, value)
+        if self.is_paid:
+            self.sync_status = 'synced'
 
     @api.model
     def create(self, vals):
