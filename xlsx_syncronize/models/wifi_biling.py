@@ -32,6 +32,13 @@ class WifiBilling(models.Model):
         if self.is_paid and self.sync_status != 'synced':
             self.sync_to_google_sheet()
 
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if self.partner_id:
+            self.phone = self.partner_id.phone
+        else:
+            self.phone = False
+
     def sync_to_google_sheet(self):
         client = self._get_google_client()
         worksheet = self._get_worksheet(client)
