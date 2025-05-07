@@ -4,6 +4,7 @@
             <field name="model">wifi.billing</field>
             <field name="arch" type="xml">
                 <list>
+                    <field name="sequence_id"/>
                     <field name="partner_id"/>
                     <field name="phone"/>
                     <field name="paket"/>
@@ -11,6 +12,11 @@
                     <field name="amount" widget="monetary"/>
                     <field name="is_paid"/>
                     <field name="sync_status"/>
+                    <button name="action_confirm_delete"
+                        type="object"
+                        string="Delete from Sheet"
+                        class="btn btn-danger"
+                        confirm="Apakah kamu yakin ingin menghapus data dari Google Sheet?" />
                 </list>
             </field>
         </record>
@@ -21,20 +27,28 @@
         <field name="arch" type="xml">
             <form string="WiFi Billing">
                 <header>
+                    <button name="action_confirm_delete"
+                        type="object"
+                        string="Delete from Sheet"
+                        class="btn btn-danger"
+                        confirm="Apakah kamu yakin ingin menghapus data dari Google Sheet?" />
                     <field name="payment_status" widget="statusbar" statusbar_visible="paid,unpaid,overdue"/>
                 </header>
                 <sheet>
                     <group>
                     <group>
+                        <field name="sequence_id"/>
                         <field name="partner_id"/>
                         <field name="phone"/>
                         <field name="billing_date"/>
                         <field name="amount"/>
-                        <field name="is_paid"/>
-                        <field name="sync_status" readonly="1"/>
+
                     </group>
                     <group>
+                        <field name="is_paid"/>
+                        <field name="sync_status" readonly="1"/>
                         <field name="is_overdue" invisible="1"/>
+                        <field name="partner_address"/>
                         <field name="paket"/>
                     </group>
                     </group>

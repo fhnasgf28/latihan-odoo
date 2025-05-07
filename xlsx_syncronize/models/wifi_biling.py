@@ -17,6 +17,7 @@ class WifiBilling(models.Model):
     billing_date = fields.Date(string='Billing Date', default=fields.Date.today)
     amount = fields.Float(string='Amount')
     is_paid = fields.Boolean(string='Paid', default=False)
+    partner_address = fields.Char(string='Alamat', readonly=True)
     # Field Selection Paket
     paket = fields.Selection([
         ('paket_a', 'Paket 1 - 100.000'),
@@ -33,6 +34,7 @@ class WifiBilling(models.Model):
         ('unpaid', 'Unpaid'),
         ('overdue', 'Overdue'),
     ], string="Payment Status", compute='_compute_payment_status', store=True)
+    sequence_id = fields.Char(string="Sequence ID", readonly=True, copy=False, index=True)
 
     @api.onchange('is_paid')
     def _onchange_is_paid(self):
@@ -43,8 +45,10 @@ class WifiBilling(models.Model):
     def _onchange_partner_id(self):
         if self.partner_id:
             self.phone = self.partner_id.phone
+            self.partner_address = self.partner_id.street or self.partner_id.city
         else:
             self.phone = False
+            self.partner_address = False
 
     @api.constrains('name', 'phone', 'billing_date')
     def _check_duplicate_billing(self):
@@ -92,10 +96,15 @@ class WifiBilling(models.Model):
         if self.is_paid:
             self.sync_status = 'synced'
 
-    @api.model
-    def create(self, vals):
-        records = super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('sequence_id'):
+                vals['sequence_id'] = self.env['ir.sequence'].next_by_code('wifi.billing.seq') or '/'
+        records = super().create(vals_list)
         for record in records:
+            if record.partner_id and record.phone:
+                record.partner_id.phone = record.phone
             if record.is_paid:
                 record.sync_to_google_sheet()
         return records
@@ -113,6 +122,38 @@ class WifiBilling(models.Model):
             if vals.get('is_paid') and record.is_paid:
                 record.sync_to_google_sheet()
         return res
+
+    def unlink(self):
+        print("apakah ini menjadi salah satu hal")
+        for rec in self:
+            try:
+                rec._delete_from_google_sheet()
+            except Exception as e:
+                print(f"Gagal hapus data dari Google Sheet untuk record {rec.partner_id.name}: {str(e)}")
+                # Jangan raise UserError, supaya Odoo tetap lanjut hapus
+                pass
+        return super(WifiBilling, self).unlink()
+
+    def action_confirm_delete(self):
+        for rec in self:
+            rec._delete_from_google_sheet()
+            raise UserError("Data berhasil dihapus dari Google Sheet (tapi belum dari Odoo).")
+
+    def _delete_from_google_sheet(self):
+        client = self._get_google_client()
+        worksheet = self._get_worksheet(client)
+        row_index = self._find_row_index_in_sheet(worksheet)
+        if row_index:
+            worksheet.delete_rows(row_index)
+        else:
+            raise UserError("Data tidak ditemukan di Google Sheet.")
+
+    # def _find_row_index_in_sheet(self, worksheet):
+    #     all_values = worksheet.get_all_values()
+    #     for idx, row in enumerate(all_values, start=2):
+    #         if row.get('ID') == self.sequence_id:
+    #             worksheet.delete_rows(idx)
+    #             return
 
     @api.depends('is_paid', 'billing_date')
     def _compute_is_overdue(self):
@@ -150,7 +191,7 @@ class WifiBilling(models.Model):
         return sheet.sheet1
 
     def _ensure_sheet_headers(self, worksheet):
-        expected_header = ['Customer Name', 'Phone', 'Tanggal Bayar', 'Amount', 'Status', 'Bulan']
+        expected_header = ['ID','Customer Name', 'Phone', 'Tanggal Bayar', 'Amount', 'Status', 'Bulan']
         current_headers = worksheet.row_values(1)
         if current_headers != expected_header:
             worksheet.delete_rows(1)
@@ -162,7 +203,7 @@ class WifiBilling(models.Model):
         amount = str(self.amount or "0")
         status = 'Paid' if self.is_paid else 'Belum Bayar'
         print(bulan, tanggal,amount,status)
-        return [self.partner_id.name, self.phone, tanggal, amount, status, bulan]
+        return [self.sequence_id,self.partner_id.name, self.phone, tanggal, amount, status, bulan]
 
     def _is_duplicate_entry(self, worksheet):
         bulan = datetime.now().strftime('%B %Y')
