@@ -6,6 +6,7 @@
                 <list>
                     <field name="partner_id"/>
                     <field name="phone"/>
+                    <field name="paket"/>
                     <field name="billing_date"/>
                     <field name="amount" widget="monetary"/>
                     <field name="is_paid"/>
@@ -24,6 +25,7 @@
                 </header>
                 <sheet>
                     <group>
+                    <group>
                         <field name="partner_id"/>
                         <field name="phone"/>
                         <field name="billing_date"/>
@@ -33,6 +35,8 @@
                     </group>
                     <group>
                         <field name="is_overdue" invisible="1"/>
+                        <field name="paket"/>
+                    </group>
                     </group>
                 </sheet>
                 <chatter/>

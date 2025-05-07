@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 import requests
+from dateutil.relativedelta import relativedelta
 import os
 from datetime import date, datetime
 import gspread
@@ -16,6 +17,12 @@ class WifiBilling(models.Model):
     billing_date = fields.Date(string='Billing Date', default=fields.Date.today)
     amount = fields.Float(string='Amount')
     is_paid = fields.Boolean(string='Paid', default=False)
+    # Field Selection Paket
+    paket = fields.Selection([
+        ('paket_a', 'Paket 1 - 100.000'),
+        ('paket_b', 'Paket 2 - 150.000'),
+        ('paket_c', 'Paket 3 - 200.000'),
+    ], string='Paket Internet', required=True)
     sync_status = fields.Selection([
         ('not_synced', 'Not Synced'),
         ('synced', 'Synced')
@@ -38,6 +45,22 @@ class WifiBilling(models.Model):
             self.phone = self.partner_id.phone
         else:
             self.phone = False
+
+    @api.constrains('name', 'phone', 'billing_date')
+    def _check_duplicate_billing(self):
+        for record in self:
+            bulan_ini = record.billing_date.strftime('%B %Y') if record.billing_date else ''
+            existing = self.search([
+                ('id', '!=', record.id),
+                ('partner_id.name', '=', record.partner_id.name),
+                ('phone', '=', record.phone),
+                ('billing_date', '>=', record.billing_date.replace(day=1)),
+                ('billing_date', '<', (record.billing_date.replace(day=1) + relativedelta(months=1))),
+            ])
+            if existing:
+                raise ValidationError(
+                    f"Customer '{record.partner_id.name}' dengan nomor {record.phone} sudah memiliki tagihan di bulan {bulan_ini}."
+                )
 
     def sync_to_google_sheet(self):
         client = self._get_google_client()
@@ -76,6 +99,13 @@ class WifiBilling(models.Model):
             if record.is_paid:
                 record.sync_to_google_sheet()
         return records
+
+    @api.depends('partner_id', 'billing_date')
+    def _compute_display_name(self):
+        for record in self:
+            customer = record.partner_id.name or ''
+            bulan = record.billing_date.strftime('%B %Y') if record.billing_date else ''
+            record.display_name = f"{customer} - {bulan}"
 
     def write(self, vals):
         res = super().write(vals)
