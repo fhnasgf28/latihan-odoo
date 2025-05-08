@@ -12,6 +12,7 @@
                     <field name="amount" widget="monetary"/>
                     <field name="is_paid"/>
                     <field name="sync_status"/>
+                    <field name="partner_address"/>
                     <button name="action_confirm_delete"
                         type="object"
                         string="Delete from Sheet"
@@ -36,21 +37,20 @@
                 </header>
                 <sheet>
                     <group>
-                    <group>
-                        <field name="sequence_id"/>
-                        <field name="partner_id"/>
-                        <field name="phone"/>
-                        <field name="billing_date"/>
-                        <field name="amount"/>
-
-                    </group>
-                    <group>
-                        <field name="is_paid"/>
-                        <field name="sync_status" readonly="1"/>
-                        <field name="is_overdue" invisible="1"/>
-                        <field name="partner_address"/>
-                        <field name="paket"/>
-                    </group>
+                        <group>
+                            <field name="sequence_id"/>
+                            <field name="partner_id"/>
+                            <field name="phone"/>
+                            <field name="billing_date"/>
+                            <field name="amount"/>
+                        </group>
+                        <group>
+                            <field name="is_paid"/>
+                            <field name="sync_status" readonly="1"/>
+                            <field name="is_overdue" invisible="1"/>
+                            <field name="partner_address"/>
+                            <field name="paket"/>
+                        </group>
                     </group>
                 </sheet>
                 <chatter/>
@@ -67,6 +67,7 @@
                 <field name="partner_id"/>
                 <filter name="paid" string="Paid" domain="[('is_paid', '=', True)]"/>
                 <filter name="unpaid" string="Unpaid" domain="[('is_paid', '=', False)]"/>
+                <filter name="partner_address" string="alamat"/>
                 <field name="is_overdue"/>
 
                 <filter string="Belum Bayar" name="unpaid" domain="[('is_paid','=',False)]"/>

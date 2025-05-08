@@ -51,7 +51,7 @@ class WifiBilling(models.Model):
             self.partner_address = self.partner_id.street or self.partner_id.city
         else:
             self.phone = False
-            self.partner_address = False
+            self.partner_address = 'isi bos'
 
     @api.constrains('name', 'phone', 'billing_date')
     def _check_duplicate_billing(self):
@@ -171,12 +171,12 @@ class WifiBilling(models.Model):
         else:
             raise UserError("Data tidak ditemukan di Google Sheet.")
 
-    # def _find_row_index_in_sheet(self, worksheet):
-    #     all_values = worksheet.get_all_values()
-    #     for idx, row in enumerate(all_values, start=2):
-    #         if row.get('ID') == self.sequence_id:
-    #             worksheet.delete_rows(idx)
-    #             return
+    def _find_row_index_in_sheet(self, worksheet):
+        all_values = worksheet.get_all_values()
+        for idx, row in enumerate(all_values, start=2):
+            if row.get('ID') == self.sequence_id:
+                worksheet.delete_rows(idx)
+                return
 
     @api.depends('is_paid', 'billing_date')
     def _compute_is_overdue(self):
