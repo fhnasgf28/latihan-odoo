@@ -1,10 +1,13 @@
+from docutils.nodes import title
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 import requests
+import re
 from dateutil.relativedelta import relativedelta
 import os
 from datetime import date, datetime
 import gspread
+from gspread.exceptions import WorksheetNotFound
 from oauth2client.service_account import ServiceAccountCredentials
 
 class WifiBilling(models.Model):
@@ -66,6 +69,15 @@ class WifiBilling(models.Model):
                     f"Customer '{record.partner_id.name}' dengan nomor {record.phone} sudah memiliki tagihan di bulan {bulan_ini}."
                 )
 
+    @api.onchange('paket')
+    def _onchange_paket(self):
+        paket_amount = {
+            'paket_a': 100000,
+            'paket_b': 150000,
+            'paket_c': 200000,
+        }
+        self.amount = paket_amount.get(self.paket, 0.0)
+
     def sync_to_google_sheet(self):
         client = self._get_google_client()
         worksheet = self._get_worksheet(client)
@@ -108,6 +120,17 @@ class WifiBilling(models.Model):
             if record.is_paid:
                 record.sync_to_google_sheet()
         return records
+
+    def _get_or_create_worksheet(self, spreadsheet, sheet_name):
+        try:
+            return spreadsheet.worksheet(sheet_name)
+        except WorksheetNotFound:
+            worksheet = spreadsheet.add_worksheet(title=sheet_name, rows='1000',cols="20")
+            worksheet.append_row(['Name', 'Phone', 'Paket', 'Amount', 'Status'])
+            return worksheet
+
+    def _sanitize_sheet_name(self, name):
+        return re.sub(r'[\\/*?:[\]]', '_', name)[:100]
 
     @api.depends('partner_id', 'billing_date')
     def _compute_display_name(self):
@@ -188,7 +211,9 @@ class WifiBilling(models.Model):
 
     def _get_worksheet(self, client):
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1Tb4MzYw6f2wpSWTbi5m8gIFBxBfF4Ir9PYhrZ-JuxgQ/edit?usp=sharing")
-        return sheet.sheet1
+        alamat = self.partner_id.street or 'Default'
+        sheet_name = self._sanitize_sheet_name(alamat)
+        return self._get_or_create_worksheet(sheet,sheet_name)
 
     def _ensure_sheet_headers(self, worksheet):
         expected_header = ['ID','Customer Name', 'Phone', 'Tanggal Bayar', 'Amount', 'Status', 'Bulan']
