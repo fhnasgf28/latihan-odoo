@@ -22,11 +22,7 @@ class WifiBilling(models.Model):
     is_paid = fields.Boolean(string='Paid', default=False)
     partner_address = fields.Char(string='Alamat', readonly=True)
     # Field Selection Paket
-    paket = fields.Selection([
-        ('paket_a', 'Paket 1 - 100.000'),
-        ('paket_b', 'Paket 2 - 150.000'),
-        ('paket_c', 'Paket 3 - 200.000'),
-    ], string='Paket Internet', required=True)
+    paket = fields.Selection(related='partner_id.default_package', string='Paket', store=True)
     sync_status = fields.Selection([
         ('not_synced', 'Not Synced'),
         ('synced', 'Synced')
@@ -38,6 +34,7 @@ class WifiBilling(models.Model):
         ('overdue', 'Overdue'),
     ], string="Payment Status", compute='_compute_payment_status', store=True)
     sequence_id = fields.Char(string="Sequence ID", readonly=True, copy=False, index=True)
+    email = fields.Char(string='Email', related='partner_id.email')
 
     @api.onchange('is_paid')
     def _onchange_is_paid(self):
@@ -87,9 +84,9 @@ class WifiBilling(models.Model):
         self._ensure_month_column(worksheet, bulan)
         # Find or create row for customer
         row_index = self._find_or_create_customer_row(worksheet)
-        if self._is_duplicate_entry(worksheet):
-            raise ValidationError(
-                f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
+        # if self._is_duplicate_entry(worksheet):
+        #     raise ValidationError(
+        #         f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
         headers = worksheet.row_values(1)
         if bulan not in headers:
             raise ValidationError(f"Kolom bulan '{bulan}' tidak ditemukan di header.")

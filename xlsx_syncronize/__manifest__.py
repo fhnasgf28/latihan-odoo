@@ -24,6 +24,7 @@ Long description of module's purpose
         'data/ir_sequence.xml',
         'security/ir.model.access.csv',
         'views/wifi_billing_views.xml',
+        'views/res_partner.xml',
     ],
     'installable': True,
     'application': True,

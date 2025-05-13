@@ -50,6 +50,7 @@
                             <field name="is_overdue" invisible="1"/>
                             <field name="partner_address"/>
                             <field name="paket"/>
+                            <field name="email"/>
                         </group>
                     </group>
                 </sheet>
