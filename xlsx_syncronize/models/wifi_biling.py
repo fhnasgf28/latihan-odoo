@@ -213,7 +213,7 @@ class WifiBilling(models.Model):
         return self._get_or_create_worksheet(sheet,sheet_name)
 
     def _ensure_sheet_headers(self, worksheet):
-        expected_header = ['ID','Customer Name', 'Phone', 'Tanggal Bayar', 'Amount', 'Status', 'Bulan']
+        expected_header = ['ID','Customer Name', 'Phone', 'Email','Tanggal Bayar', 'Amount', 'Status', 'Bulan']
         current_headers = worksheet.row_values(1)
         if current_headers != expected_header:
             worksheet.delete_rows(1)
@@ -225,7 +225,7 @@ class WifiBilling(models.Model):
         amount = str(self.amount or "0")
         status = 'Paid' if self.is_paid else 'Belum Bayar'
         print(bulan, tanggal,amount,status)
-        return [self.sequence_id,self.partner_id.name, self.phone, tanggal, amount, status, bulan]
+        return [self.sequence_id,self.partner_id.name, self.phone, self.email, tanggal, amount, status, bulan]
 
     def _is_duplicate_entry(self, worksheet):
         bulan = datetime.now().strftime('%B %Y')
