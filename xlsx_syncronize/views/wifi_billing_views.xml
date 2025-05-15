@@ -18,6 +18,11 @@
                         string="Delete from Sheet"
                         class="btn btn-danger"
                         confirm="Apakah kamu yakin ingin menghapus data dari Google Sheet?" />
+                    <field name="payment_status" decoration-success="payment_status == 'paid'"
+                    decoration-warning="payment_status == 'unpaid'"
+                    decoration-info="payment_status == 'overdue'"
+                    widget="badge"
+                    optional="hide"/>/>
                 </list>
             </field>
         </record>
