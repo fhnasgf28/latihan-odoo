@@ -22,7 +22,7 @@
                     decoration-warning="payment_status == 'unpaid'"
                     decoration-info="payment_status == 'overdue'"
                     widget="badge"
-                    optional="hide"/>/>
+                    optional="hide"/>
                 </list>
             </field>
         </record>

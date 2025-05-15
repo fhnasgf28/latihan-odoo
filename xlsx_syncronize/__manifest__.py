@@ -22,6 +22,7 @@ Long description of module's purpose
     # always loaded
     'data': [
         'data/ir_sequence.xml',
+        'data/ir_cron.xml',
         'security/ir.model.access.csv',
         'views/wifi_billing_views.xml',
         'views/res_partner.xml',

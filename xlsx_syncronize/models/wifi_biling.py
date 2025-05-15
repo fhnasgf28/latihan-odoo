@@ -1,7 +1,8 @@
-from docutils.nodes import title
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
-import requests
+import logging
+_logger = logging.getLogger(__name__)
+import socket
 import re
 from dateutil.relativedelta import relativedelta
 import os
@@ -25,7 +26,9 @@ class WifiBilling(models.Model):
     paket = fields.Selection(related='partner_id.default_package', string='Paket', store=True)
     sync_status = fields.Selection([
         ('not_synced', 'Not Synced'),
-        ('synced', 'Synced')
+        ('pending', 'pending'),
+        ('synced', 'Synced'),
+        ('failed', 'Failed')
     ], string='Sync Status', default='not_synced')
     is_overdue = fields.Boolean(string='Overdue', compute='_compute_is_overdue', store=True)
     payment_status = fields.Selection([
@@ -76,34 +79,37 @@ class WifiBilling(models.Model):
         self.amount = paket_amount.get(self.paket, 0.0)
 
     def sync_to_google_sheet(self):
-        client = self._get_google_client()
-        worksheet = self._get_worksheet(client)
-        # Ensure headers and month column exist
-        self._ensure_sheet_headers(worksheet)
-        bulan = datetime.now().strftime('%B %Y')
-        self._ensure_month_column(worksheet, bulan)
-        # Find or create row for customer
-        row_index = self._find_or_create_customer_row(worksheet)
-        # if self._is_duplicate_entry(worksheet):
-        #     raise ValidationError(
-        #         f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
-        headers = worksheet.row_values(1)
-        if bulan not in headers:
-            raise ValidationError(f"Kolom bulan '{bulan}' tidak ditemukan di header.")
-        col_index = headers.index(bulan) + 1
-        # Ensure row and column are within sheet limits
-        max_rows = worksheet.row_count
-        max_cols = worksheet.col_count
-        if row_index > max_rows:
-            worksheet.add_rows(row_index - max_rows)
+        try:
+            client = self._get_google_client()
+            worksheet = self._get_worksheet(client)
+            # Ensure headers and month column exist
+            self._ensure_sheet_headers(worksheet)
+            bulan = datetime.now().strftime('%B %Y')
+            self._ensure_month_column(worksheet, bulan)
+            # Find or create row for customer
+            row_index = self._find_or_create_customer_row(worksheet)
+            # if self._is_duplicate_entry(worksheet):
+            #     raise ValidationError(
+            #         f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
+            headers = worksheet.row_values(1)
+            if bulan not in headers:
+                raise ValidationError(f"Kolom bulan '{bulan}' tidak ditemukan di header.")
+            col_index = headers.index(bulan) + 1
+            # Ensure row and column are within sheet limits
             max_rows = worksheet.row_count
-        if col_index > max_cols:
-            worksheet.add_cols(col_index - max_cols)
             max_cols = worksheet.col_count
-        value = 'Paid' if self.is_paid else 'Belum Bayar'
-        worksheet.update_cell(row_index, col_index, value)
-        if self.is_paid:
+            if row_index > max_rows:
+                worksheet.add_rows(row_index - max_rows)
+                max_rows = worksheet.row_count
+            if col_index > max_cols:
+                worksheet.add_cols(col_index - max_cols)
+                max_cols = worksheet.col_count
+            value = 'Paid' if self.is_paid else 'Belum Bayar'
+            worksheet.update_cell(row_index, col_index, value)
             self.sync_status = 'synced'
+        except Exception as e:
+            self.sync_status = 'pending'
+            _logger.warning(f"Failed to sync to Google Sheet: {str(e)}")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -117,6 +123,25 @@ class WifiBilling(models.Model):
             if record.is_paid:
                 record.sync_to_google_sheet()
         return records
+
+    def _cron_retry_google_sync(self):
+        print("kodingan ir cron ini di eksekusi")
+        if self.is_internet_available():
+            pending_records = self.search([('sync_status', '=', 'pending')])
+            for record in pending_records:
+                try:
+                    record.sync_to_google_sheet()
+                except Exception as e:
+                    record.sync_status = 'failed'
+                    _logger.error(f"Failed to sync to Google Sheet: {str(e)}")
+
+    @staticmethod
+    def is_internet_available():
+        try:
+            socket.create_connection(("www.google.com", 80))
+            return True
+        except OSError:
+            return False
 
     def _get_or_create_worksheet(self, spreadsheet, sheet_name):
         try:
