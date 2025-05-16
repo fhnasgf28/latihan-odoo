@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 import os
 from datetime import date, datetime
 import gspread
+import random
 from gspread.exceptions import WorksheetNotFound
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -38,6 +39,7 @@ class WifiBilling(models.Model):
     ], string="Payment Status", compute='_compute_payment_status', store=True)
     sequence_id = fields.Char(string="Sequence ID", readonly=True, copy=False, index=True)
     email = fields.Char(string='Email', related='partner_id.email')
+    wifi_customer_number = fields.Char(string="Nomor Pelanggan", related='partner_id.wifi_customer_number', copy=False, readonly=True)
 
     @api.onchange('is_paid')
     def _onchange_is_paid(self):
@@ -116,6 +118,9 @@ class WifiBilling(models.Model):
         for vals in vals_list:
             if not vals.get('sequence_id'):
                 vals['sequence_id'] = self.env['ir.sequence'].next_by_code('wifi.billing.seq') or '/'
+            address_code = self.env['res.partner'].browse(vals.get('partner_id')).address_code
+            unique_number = str(random.randint(1000000, 9999999))  # Generate a random 7-digit number
+            vals['wifi_customer_number'] = f"{address_code}{unique_number}"
         records = super().create(vals_list)
         for record in records:
             if record.partner_id and record.phone:
