@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_face_registration_wizard_form" model="ir.ui.view">
+        <field name="name">face.registration.wizard.wizard.form</field>
+        <field name="model">face.registration.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Daftar Wajah">
+                <sheet>
+                    <group>
+                        <field name="employee_id" readonly="1"/>
+                        <field name="message" invisible="1"/>
+                    </group>
+
+                     <!-- Kontainer Kamera -->
+                <div id="camera_container" class="oe_camera_widget">
+                    <video id="video" width="100%" muted="true" autoplay="true" playsinline="true"></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+
+                   <field name="camera_placeholder" widget="camera_widget" nolabel="1"/>
+
+                    <footer>
+                        <button string="Ambil Foto &amp; Daftarkan"
+                                name="action_save_face"
+                                type="object"
+                                class="oe_highlight o_camera_capture_button"
+                                data-hotkey="s"/>
+                        <button string="Batal" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_register_face_wizard" model="ir.actions.act_window">
+        <field name="name">Daftarkan Wajah Karyawan</field>
+        <field name="res_model">face.registration.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="face_recognition.view_face_registration_wizard_form"/>
+    </record>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="my_face_attendance.CameraTemplate">
+        <div class="o_camera_container">
+            <video t-ref="videoElement" class="o_camera_video" autoplay="autoplay" muted="muted" style="transform: scaleX(-1); object-fit: cover;"></video>
+            <button t-on-click="onCaptureClick" class="btn btn-primary mt-3" t-ref="captureButton">
+                <i class="fa fa-camera"/> Ambil Foto Preview
+            </button>
+            <canvas t-ref="canvasElement" class="o_camera_canvas"></canvas>
+            <img t-ref="photoElement" class="o_camera_photo" t-att-src="state.photoTaken ? photoRef.el.src : ''" t-att-style="state.photoTaken ? 'display: block;' : 'display: none;'"/>
+            <div t-if="state.isSaving" class="mt-2 text-info">
+                Menyimpan...
+            </div>
+        </div>
+    </t>
+</templates>

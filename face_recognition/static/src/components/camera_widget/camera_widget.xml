@@ -1,0 +1,5 @@
+<t t-name="face_recognition.CameraWidget" owl="1">
+    <div class="camera-widget">
+        <video muted="true" autoplay="true" playsinline="true" style="width: 100%; border-radius: 10px;"></video>
+    </div>
+</t>

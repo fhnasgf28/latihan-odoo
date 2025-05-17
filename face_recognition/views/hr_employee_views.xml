@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_face_attendance" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.face.attendance</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(face_recognition.action_register_face_wizard)d"
+                        type="action"
+                        string="Daftarkan Wajah"
+                        class="oe_highlight"
+                        help="Daftarkan atau perbarui wajah karyawan untuk pengenalan absensi."/>
+            </xpath>
+            <xpath expr="//field[@name='marital']" position="after">
+                <group string="Data Pengenalan Wajah">
+                    <field name="face_image" widget="image" class="oe_avatar" options="{'preview_image': 'face_image'}"/>
+                    <field name="face_encoding" invisible="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_register_face_wizard" model="ir.actions.act_window">
+        <field name="name">Daftarkan Wajah Karyawan</field>
+        <field name="res_model">face.registration.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="face_recognition.view_face_registration_wizard_form"/>
+    </record>
+
+</odoo>
