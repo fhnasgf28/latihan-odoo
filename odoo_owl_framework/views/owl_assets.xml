@@ -1,0 +1,10 @@
+<odoo>
+    <template id="odoo_owl_template" name="OWL Demo Page">
+        <xpath expr="//main" position="inside">
+            <div class="container mt-4">
+                <h1>OWL Demo</h1>
+                <div id="owl-app-root"></div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

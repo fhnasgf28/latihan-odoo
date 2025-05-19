@@ -1,0 +1,13 @@
+<templates xml:space="preserve">
+    <t t-name="odoo_owl_framework.MainComponent">
+        <div>
+            <ul>
+                <t t-foreach="state.names" t-as="name" t-key="name">
+                    <li><t t-esc="name"/></li>
+                </t>
+            </ul>
+            <input type="text" t-on-input="onInput" t-att-value="state.newName" placeholder="Enter name"/>
+            <button t-on-click="addName">Add</button>
+        </div>
+    </t>
+</templates>
