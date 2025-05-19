@@ -22,13 +22,12 @@ Long description of module's purpose
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/todo_assets.xml',
         'views/owl_assets.xml',
     ],
     'assets': {
         'web.assets_frontend': [
-            'odoo_owl_framework/static/src/js/owl_app.js',
-            'odoo_owl_framework/static/src/xml/owl_template.xml',
+            'odoo_owl_framework/static/src/**',
         ],
     },
     # only loaded in demonstration mode

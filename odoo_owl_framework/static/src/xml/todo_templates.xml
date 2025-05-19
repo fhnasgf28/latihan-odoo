@@ -1,0 +1,13 @@
+<templates xml:space="preserve">
+    <t t-name="odoo_owl_framework.TodoComponent">
+        <div>
+            <ul>
+                <t t-foreach="state.tasks" t-as="task" t-key="task.id">
+                    <li><t t-esc="task.text"/></li>
+                </t>
+            </ul>
+            <input t-on-input="onInput" t-att-value="state.newTask" placeholder="New Task"/>
+            <button t-on-click="addTask">Add</button>
+        </div>
+    </t>
+</templates>

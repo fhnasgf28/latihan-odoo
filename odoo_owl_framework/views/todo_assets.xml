@@ -1,0 +1,10 @@
+<odoo>
+    <template id="todo_page_template" name="ToDo Page">
+        <xpath expr="//main" position="inside">
+            <div class="container mt-5">
+                <h2>My ToDo App with OWL</h2>
+                <div id="todo-app-root"></div>
+            </div>
+        </xpath>
+    </template>
+</odoo>
