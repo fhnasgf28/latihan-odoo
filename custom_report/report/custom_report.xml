@@ -1,0 +1,155 @@
+<odoo>
+    <template id="custom_sale_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="header" style="margin-bottom: 10px; position: relative; padding-top: 30px;">
+                <!-- LOGO POSISI BEBAS -->
+                    <div style="position: absolute; top: -10px; left: 0; z-index: 999;">
+                        <img t-att-src="'/custom_report/static/src/img/logo3.png'" style="height: 200px; width: 160px; bottom: 10px; border-radius: none;" />
+                    </div>
+                    <div style="text-align: center; position: relative;">
+                        <!-- Teks di atas border -->
+                        <div style="position: absolute; top: 10px; left: 180px; width: calc(100% - 160px); z-index: 2; text-align: left;">
+                            <h2 style="margin: 0; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 1.8em;">
+                                PT. KARYA NADISO UTAMA
+                            </h2>
+                            <p style="margin-top: 7px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: normal; font-size: 14px;">
+                                MANUFACTURES OF OFFICE &amp; LABORATORY FURNITURE
+                            </p>
+<!--                            alamat-->
+                            <div style="text-align:left; font-size:14px; margin: 0; color: #2b7250;">
+                                <div style="margin: 0; left: 60px; font-weight: bold;">
+                                    <t t-if="o.company_id and o.company_id.partner_id">
+                                        <div>
+                                            <t t-esc="o.company_id.partner_id.contact_address"/>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                            <!-- Dua garis warna tanpa jarak -->
+                            <div style="height: 50px; background-color: #2b7250; width: 100%;"></div>
+                            <div style="height: 20px; background-color: #21a451; width: 100%; margin-top: 0;"></div>
+                            
+                        </div>
+                 </div>
+
+                    <!-- Alamat perusahaan di antara border -->
+                <div style="width:100%; text-align:center; font-size:15px; margin: 0; margin-left: 80px; color: #2b7250;">
+                    <div style="margin: 0; font-weight: bold;">
+<!--                        <t t-if="o.company_id and o.company_id.partner_id">-->
+<!--                            <div>-->
+<!--                                <t t-esc="o.company_id.partner_id.contact_address"/>-->
+<!--                            </div>-->
+<!--                        </t>-->
+                    </div>
+                    <!-- Info Kontak dalam satu baris sejajar -->
+                    <div style="margin: 4px 0 0 0;">
+                        <span style="
+                                    display: inline-block;
+                                    width: 20px;
+                                    height: 20px;
+                                    line-height: 20px;
+                                    border-radius: 50%;
+                                    background: #2b7250;
+                                    color: #fff;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                    text-align: center;
+                                    margin-right: 8px;
+                                    letter-spacing: 0.5px;
+                                    ">
+                                    call
+                                </span>
+                        <span style="font-size: 13px; color: #4185f4; font-weight: bold; margin-right: 15px;">
+                            <t t-esc="o.company_id.partner_id.phone"/>
+                            <span style="display: inline-block; width: 10px; height: 16px; vertical-align: middle;">
+                                <span style="display: block; width: 2px; height: 100%; background: #2b7250; margin: 0 auto; border-radius: 2px;"></span>
+                            </span>
+                        </span>
+                        <span style="
+                                    display: inline-block;
+                                    width: 20px;
+                                    height: 20px;
+                                    line-height: 20px;
+                                    border-radius: 50%;
+                                    background: #2b7250;
+                                    color: #fff;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                    text-align: center;
+                                    margin-right: 8px;
+                                    letter-spacing: 0.5px;
+                                    ">
+                                    mail
+                                </span>
+                        <span style="font-size: 13px; color: #4185f4; font-weight: bold; margin-right: 15px;">
+                            <t t-esc="o.company_id.partner_id.email"/>
+                            <span style="display: inline-block; width: 10px; height: 16px; vertical-align: middle;">
+                                <span style="display: block; width: 2px; height: 100%; background: #2b7250; margin: 0 auto; border-radius: 2px;"></span>
+                            </span>
+                        </span>
+
+                        <span style="
+                                    display: inline-block;
+                                    width: 20px;
+                                    height: 20px;
+                                    line-height: 20px;
+                                    border-radius: 50%;
+                                    background: #2b7250;
+                                    color: #fff;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                    text-align: center;
+                                    margin-right: 8px;
+                                    letter-spacing: 0.5px;
+                                    ">
+                                    web
+                                </span>
+                        <span style="font-size: 13px; color: #4185f4; font-weight: bold; margin-right: 15px;">
+                            <t t-esc="o.company_id.partner_id.website"/>
+                            <span style="display: inline-block; width: 10px; height: 16px; vertical-align: middle;">
+                                <span style="display: block; width: 2px; height: 100%; background: #2b7250; margin: 0 auto; border-radius: 2px;"></span>
+                            </span>
+                        </span>
+
+                        <span style="
+                                    display: inline-block;
+                                    width: 20px;
+                                    height: 20px;
+                                    line-height: 20px;
+                                    border-radius: 50%;
+                                    background: #2b7250;
+                                    color: #fff;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                    text-align: center;
+                                    margin-right: 8px;
+                                    letter-spacing: 0.5px;
+                                    ">
+                                    telp
+                                </span>
+                        <span style="font-size: 13px; color: font-weight: bold; margin-right: 15px; color: #4185f4;">
+                            <t t-esc="o.company_id.partner_id.mobile"/>
+                        </span>
+                    </div>
+
+                </div>
+                <div style="border-bottom:5px solid #2b7250; margin:20px 0 0 0;"></div>
+            </t>
+        </t>
+    </template>
+
+
+
+    <!-- Main Report Template -->
+<!--    <template id="custom_sale_report_template1">-->
+<!--        <t t-call="custom_report.custom_sale_report_header"/>-->
+<!--        <div class="page">-->
+<!--            <h2>Sales Order: <t t-esc="o.name"/></h2>-->
+<!--            <p>Customer: <t t-esc="o.partner_id.name"/></p>-->
+<!--            <p>Order Date: <t t-esc="o.date_order"/></p>-->
+<!--            <p>Total: <t t-esc="o.amount_total"/></p>-->
+<!--        </div>-->
+<!--    </template>-->
+</odoo>
