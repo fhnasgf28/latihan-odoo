@@ -1,0 +1,10 @@
+<odoo>
+    <template id="note_page" name="OWL Note Page" inherit_id="website.layout">
+        <xpath expr="//main" position="inside">
+            <div class="container mt-5">
+                <h2>OWL Note Farhan</h2>
+                <div id="note-app-root"></div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

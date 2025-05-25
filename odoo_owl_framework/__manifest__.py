@@ -17,17 +17,19 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'web'],
+    'depends': ['base', 'web', 'website'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/todo_assets.xml',
         'views/owl_assets.xml',
+        'views/owl_crud_template.xml',
     ],
     'assets': {
         'web.assets_frontend': [
             'odoo_owl_framework/static/src/**',
+            "odoo_owl_framework/static/src/js/note_app.js",
         ],
     },
     # only loaded in demonstration mode

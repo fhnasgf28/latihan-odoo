@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_odoo_owl_framework_odoo_owl_framework,odoo_owl_framework.odoo_owl_framework,model_odoo_owl_framework_odoo_owl_framework,base.group_user,1,1,1,1
+access_odoo_owl_framework_odoo_owl_framework,odoo_owl_framework.odoo_owl_framework,model_owl_note,,1,1,1,1
