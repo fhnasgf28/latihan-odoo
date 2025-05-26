@@ -1,0 +1,10 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="odoo_owl_framework.OrderTypeDropdown" owl="1">
+        <select class="form-control" t-model="state.value" t-on-change="onChange">
+            <option value="">Choose type</option>
+            <option value="retail">Retail</option>
+            <option value="wholesale">Wholesale</option>
+            <option value="custom">Custom Order</option>
+        </select>
+    </t>
+</templates>

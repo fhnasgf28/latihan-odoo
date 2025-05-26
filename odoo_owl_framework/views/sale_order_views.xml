@@ -1,0 +1,17 @@
+<odoo>
+  <data>
+
+    <record id="view_order_form_inherit_owl" model="ir.ui.view">
+      <field name="name">sale.order.form.owl.dropdown</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <!-- Sisipkan OWL dropdown setelah field partner_id -->
+        <xpath expr="//field[@name='partner_id']" position="after">
+          <field name="order_type" widget="owl_order_type_dropdown"/>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</odoo>
