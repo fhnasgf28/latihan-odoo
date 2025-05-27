@@ -30,7 +30,6 @@ class TestMaterial(TransactionCase):
         self.assertTrue(material.material_code.startswith('MAT/'))
 
     def test_create_material_buy_price_less_than_100(self):
-        """Test creating a material with buy price less than 100 should raise ValidationError."""
         with self.assertRaises(ValidationError):
             self.Material.create({
                 'material_name': 'Invalid Fabric',
@@ -40,8 +39,7 @@ class TestMaterial(TransactionCase):
             })
 
     def test_create_material_missing_required_fields(self):
-        """Test creating a material with missing required fields."""
-        with self.assertRaises(Exception): # Odoo will raise a psycopg2.IntegrityError or similar for missing required fields
+        with self.assertRaises(Exception):
             self.Material.create({
                 'material_name': 'Incomplete Material',
                 'material_type': 'fabric',
