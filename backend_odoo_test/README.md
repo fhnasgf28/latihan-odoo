@@ -44,10 +44,8 @@ Untuk menginstal modul ini di Odoo 14 Anda:
 1. Clone repositori ini ke dalam direktori addons Odoo Anda.
 
    ```bash
-   git clone https://github.com/your_username/material_management_integrated.git /path/to/odoo/addons/material_registration
+   git clone https://github.com/fhnasgf28/latihan-odoo/tree/main/backend_odoo_test
    ```
-
-   (Ganti `/path/to/odoo/addons/material_registration` dengan jalur sebenarnya ke direktori addons Anda dan `your_username` dengan username GitHub Anda.)
 
 2. Perbarui Daftar Aplikasi di Odoo.
 3. Aktifkan Developer Mode.
