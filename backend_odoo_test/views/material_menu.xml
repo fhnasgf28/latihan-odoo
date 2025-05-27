@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_material_products" model="ir.actions.act_window">
+        <field name="name">Materials</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('is_material', '=', True)]</field>
+        <field name="context">{'default_is_material': True, 'search_default_is_material_filter': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first material
+            </p><p>
+                Materials are products specifically designated as raw goods for internal use or resale.
+            </p>
+        </field>
+        </record>
+
+    <record id="action_material_stock_moves" model="ir.actions.act_window">
+        <field name="name">Material Moves</field>
+        <field name="res_model">stock.move</field>
+        <field name="view_mode">tree,form,graph</field>
+        <field name="domain">[('product_id.product_tmpl_id.is_material', '=', True)]</field>
+        <field name="context">{'search_default_is_material_filter': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No stock moves for materials yet!
+            </p>
+        </field>
+    </record>
+
+    <record id="action_material_stock_quants" model="ir.actions.act_window">
+        <field name="name">Material On Hand</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('product_tmpl_id.is_material', '=', True)]</field>
+        <field name="context">{'search_default_locationgroup': 1, 'search_default_material_filter': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No materials currently in stock.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_material_purchase_rfq" model="ir.actions.act_window">
+        <field name="name">Material Purchase Orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph,activity</field>
+        <field name="domain">[('order_line.product_id.product_tmpl_id.is_material', '=', True)]</field>
+        <field name="context">{'search_default_material_filter': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Request for Quotation for your materials.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_material_inventory_root"
+              name="Inventory"
+              parent="material_registration_root_menu"
+              sequence="30"/>
+    <menuitem id="menu_material_purchase_root"
+              name="Purchases"
+              parent="material_registration_root_menu"
+              sequence="40"/>
+    <menuitem id="menu_material_purchase_orders_item"
+              name="Material Purchase Orders"
+              parent="menu_material_purchase_root"
+              action="action_material_purchase_rfq"
+              sequence="10"/>
+    <menuitem id="menu_materials_action"
+              name="Materials Products"
+              parent="material_registration_root_menu"
+              action="action_material_products"
+              sequence="10"/>
+     <menuitem id="menu_material_stock_quants_item"
+              name="Material On Hand"
+              parent="menu_material_inventory_root"
+              action="action_material_stock_quants"
+              sequence="20"/>
+    <menuitem id="menu_material_stock_moves_item"
+              name="Material Moves"
+              parent="menu_material_inventory_root"
+              action="action_material_stock_moves"
+              sequence="10"/>
+
+</odoo>
