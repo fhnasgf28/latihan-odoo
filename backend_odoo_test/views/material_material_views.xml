@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="material_material_form_view" model="ir.ui.view">
+        <field name="name">material.material.form</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <form string="Material">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="material_code"/>
+                            <field name="material_name"/>
+                            <field name="material_type"/>
+                        </group>
+                        <group>
+                            <field name="material_buy_price"/>
+                            <field name="supplier_id"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                 </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="material_material_tree_view" model="ir.ui.view">
+        <field name="name">material.material.tree</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <tree string="Materials">
+                <field name="material_code"/>
+                <field name="material_name"/>
+                <field name="material_type"/>
+                <field name="material_buy_price"/>
+                <field name="supplier_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="material_material_search_view" model="ir.ui.view">
+        <field name="name">material.material.search</field>
+        <field name="model">material.material</field>
+        <field name="arch" type="xml">
+            <search string="Materials">
+                <field name="material_code"/>
+                <field name="material_name"/>
+                <field name="material_type" filter_domain="[('material_type', 'ilike', self)]"/>
+                <field name="supplier_id"/>
+                <filter string="Fabric Materials" name="filter_fabric" domain="[('material_type', '=', 'fabric')]"/>
+                <filter string="Jeans Materials" name="filter_jeans" domain="[('material_type', '=', 'jeans')]"/>
+                <filter string="Cotton Materials" name="filter_cotton" domain="[('material_type', '=', 'cotton')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_material_material" model="ir.actions.act_window">
+        <field name="name">Materials</field>
+        <field name="res_model">material.material</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first material
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="material_registration_root_menu"
+              name="Material Management"
+              sequence="10"/>
+
+    <menuitem id="material_registration_menu"
+              name="Materials"
+              parent="material_registration_root_menu"
+              action="action_material_material"
+              sequence="10"/>
+</odoo>
