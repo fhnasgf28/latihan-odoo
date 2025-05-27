@@ -5,6 +5,18 @@
         <field name="model">material.material</field>
         <field name="arch" type="xml">
             <form string="Material">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
+                    <button name="action_approve_material" string="Approve" type="object"
+                            states="draft" class="oe_highlight"
+                            help="Approve this material for general use."/>
+                    <button name="action_archive_material" string="Archive" type="object"
+                            states="draft,approved"
+                            help="Archive this material, making it inactive."/>
+                    <button name="action_set_to_draft" string="Set to Draft" type="object"
+                            states="archived"
+                            help="Reactivate this material and set its status back to Draft."/>
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -17,7 +29,7 @@
                         <group>
                             <field name="material_buy_price"/>
                             <field name="supplier_id"/>
-                            <field name="material_uom_id"/>
+<!--                            <field name="material_uom_id"/>-->
                             <field name="min_stock_qty"/>
                             <field name="current_stock_qty" readonly="1"/>
                             <field name="last_purchase_date" readonly="1"/>
@@ -42,12 +54,13 @@
                 <field name="material_type"/>
                 <field name="supplier_id"/>
                 <field name="material_buy_price"/>
-                <field name="material_uom_id"/>
+<!--                <field name="material_uom_id"/>-->
                 <field name="current_stock_qty"/>
                 <field name="min_stock_qty"/>
                 <field name="material_lifecycle_stage" optional="hide"/>
                 <field name="last_purchase_date" optional="hide"/>
                 <field name="product_id" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'archived'" decoration-success="state == 'approved'"/>
             </tree>
         </field>
     </record>

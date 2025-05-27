@@ -6,7 +6,7 @@ class Material(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Material Registration'
 
-    material_code = fields.Char(string='Material Code', required=True, copy=False,help="Unique code for the material")
+    material_code = fields.Char(string='Material Code', readonly=True,copy=False,help="Unique code for the material")
     material_name = fields.Char(string='Material Name', required=True,help="Name of the material")
     material_type = fields.Selection([
         ('fabric', 'Fabric'),
@@ -15,7 +15,7 @@ class Material(models.Model):
     ], string='Material Type', required=True,help="Type of the material (Fabric, Jeans, Cotton)")
     material_buy_price = fields.Float(string='Material Buy Price', required=True,help="Buying price of the material")
     supplier_id = fields.Many2one('res.partner', string='Related Supplier', required=True,domain=[('is_company', '=', True)],help="Supplier of this material")
-    material_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', required=True, help="Unit of Measure for the material (e.g., Meter, KG, Unit)")
+    material_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', help="Unit of Measure for the material (e.g., Meter, KG, Unit)")
     min_stock_qty = fields.Float(string='Minimum Stock Quantity', default=0.0,help="Minimum quantity of material to keep in stock. Triggers alerts if below this.")
     current_stock_qty = fields.Float(string='Current Stock Quantity', compute='_compute_current_stock_qty', store=True,help="Current quantity of material available in stock.")
     material_lifecycle_stage = fields.Selection([
@@ -27,6 +27,11 @@ class Material(models.Model):
         help="Current stage of the material in its lifecycle.")
     last_purchase_date = fields.Date(string='Last Purchase Date', compute='_compute_last_purchase_date', store=True, help="Date of the most recent purchase of this material.")
     product_id = fields.Many2one('product.product', string='Related Product', ondelete='restrict',help="Link to the standard Odoo product used for stock and purchase.",copy=False,domain="[('is_material_product', '=', True)]")  # Akan dibuat di product.product
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('approved', 'Approved'),
+        ('archived', 'Archived'),
+    ], string='Status', default='draft', readonly=True, copy=False, tracking=True,help="The current status of the material registration.")
 
     _sql_constraints = [
         ('material_code_unique', 'unique(material_code)', 'Material Code must be unique!'),
@@ -51,7 +56,7 @@ class Material(models.Model):
                 latest_po_line = self.env['purchase.order.line'].search([
                     ('product_id', '=', rec.product_id.id),
                     ('state', 'in', ['purchase', 'done'])
-                ], order='order_id.date_order desc', limit=1)
+                ], limit=1)
                 rec.last_purchase_date = latest_po_line.order_id.date_order if latest_po_line else False
             else:
                 rec.last_purchase_date = False
@@ -72,7 +77,7 @@ class Material(models.Model):
                 'name': product_name,
                 'default_code': vals.get('material_code'),
                 'type': 'product',  # Storable product
-                'uom_id': vals.get('material_uom_id'),
+                # 'uom_id': vals.get('material_uom_id'),
                 'standard_price': vals.get('material_buy_price'),
                 'is_material_product': True,
                 'seller_ids': [(0, 0, {
@@ -96,8 +101,8 @@ class Material(models.Model):
                     product_update_vals['name'] = vals['material_name']
                 if 'material_code' in vals:
                     product_update_vals['default_code'] = vals['material_code']
-                if 'material_uom_id' in vals:
-                    product_update_vals['uom_id'] = vals['material_uom_id']
+                # if 'material_uom_id' in vals:
+                #     product_update_vals['uom_id'] = vals['material_uom_id']
                 if 'material_buy_price' in vals:
                     product_update_vals['standard_price'] = vals['material_buy_price']
                 if product_update_vals:
@@ -136,3 +141,34 @@ class Material(models.Model):
             products_to_unlink.filtered(lambda p: p.is_material_product).unlink()
 
         return res
+
+    def action_approve_material(self):
+        """ Moves the material status to 'Approved'. """
+        for rec in self:
+            if rec.state == 'draft':
+                rec.state = 'approved'
+                rec.message_post(body=_("Material has been approved."))
+            else:
+                raise UserError(_("Material can only be approved from 'Draft' state."))
+
+    def action_archive_material(self):
+        """ Moves the material status to 'Archived'. """
+        for rec in self:
+            if rec.state in ['draft', 'approved']:
+                rec.state = 'archived'
+                if rec.product_id:
+                    rec.product_id.active = False
+                rec.message_post(body=_("Material has been archived."))
+            else:
+                raise UserError(_("Material can only be archived from 'Draft' or 'Approved' state."))
+
+    def action_set_to_draft(self):
+        """ Moves the material status back to 'Draft' from 'Archived'. """
+        for rec in self:
+            if rec.state == 'archived':
+                rec.state = 'draft'
+                if rec.product_id:
+                    rec.product_id.active = True
+                rec.message_post(body=_("Material has been set back to Draft."))
+            else:
+                raise UserError(_("Material can only be set to Draft from 'Archived' state."))
