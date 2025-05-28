@@ -32,6 +32,7 @@ class Material(models.Model):
         ('approved', 'Approved'),
         ('archived', 'Archived'),
     ], string='Status', default='draft', readonly=True, copy=False, tracking=True,help="The current status of the material registration.")
+    order_line = fields.One2many( 'material.material.order.line', 'material_id', string='Order Lines')
 
     _sql_constraints = [
         ('material_code_unique', 'unique(material_code)', 'Material Code must be unique!'),
@@ -177,3 +178,14 @@ class Material(models.Model):
                 rec.message_post(body=_("Material has been set back to Draft."))
             else:
                 raise UserError(_("Material can only be set to Draft from 'Archived' state."))
+
+class MaterialMaterialOrderLine(models.Model):
+    _name = 'material.material.order.line'
+    _description = 'Material Order Line'
+
+    material_id = fields.Many2one('material.material', string='Material')
+    product_id = fields.Many2one('product.template', string='Product',
+        domain=[('is_material', '=', True)],
+        required=True
+    )
+    quantity = fields.Float(string='Quantity', default=1.0)
