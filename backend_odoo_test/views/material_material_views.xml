@@ -18,9 +18,11 @@
                             help="Reactivate this material and set its status back to Draft."/>
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1><field name="material_code" default_focus="1" placeholder="Material Code"/></h1>
+                    </div>
                     <group>
                         <group>
-                            <field name="material_code"/>
                             <field name="material_name"/>
                             <field name="material_type"/>
                             <field name="material_lifecycle_stage" widget="selection"/>

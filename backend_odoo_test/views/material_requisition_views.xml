@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="material_requisition_form_view" model="ir.ui.view">
+        <field name="name">material.requisition.form</field>
+        <field name="model">material.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Material Requisition">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,approved,done"/>
+                    <button name="action_submit_for_approval" string="Submit For Approval" type="object"
+                            states="draft" class="oe_highlight"/>
+                    <button name="action_approve" string="Approve" type="object"
+                            states="to_approve" class="oe_highlight"/>
+                    <button name="action_transfer_materials" string="Transfer Materials" type="object"
+                            states="approved" class="oe_highlight"
+                            confirm="Are you sure you want to mark this requisition as Done and proceed with material transfer?"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            states="draft,to_approve,approved"/>
+                    <button name="action_set_to_draft" string="Set to Draft" type="object"
+                            states="cancel"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" default_focus="1" placeholder="Requisition Reference"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_date"/>
+                            <field name="requested_by"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            </group>
+                    </group>
+                    <notebook>
+                        <page string="Requisition Lines" name="requisition_lines">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="material_id"/>
+                                    <field name="quantity"/>
+                                    <field name="quantity_uom_id" string="UoM"/>
+                                    <field name="available_quantity" string="Available Qty"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="material_id"/>
+                                        <field name="quantity"/>
+                                        <field name="quantity_uom_id"/>
+                                        <field name="available_quantity"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes_page">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="material_requisition_tree_view" model="ir.ui.view">
+        <field name="name">material.requisition.tree</field>
+        <field name="model">material.requisition</field>
+        <field name="arch" type="xml">
+            <tree string="Material Requisitions">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="requested_by"/>
+                <field name="department_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="material_requisition_search_view" model="ir.ui.view">
+        <field name="name">material.requisition.search</field>
+        <field name="model">material.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Material Requisitions">
+                <field name="name"/>
+                <field name="requested_by"/>
+                <field name="department_id"/>
+                <field name="state"/>
+                <filter string="My Requisitions" name="my_requisitions" domain="[('requested_by', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Requested By" name="group_requested_by" context="{'group_by': 'requested_by'}"/>
+                    <filter string="Department" name="group_department_id" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_material_requisition" model="ir.actions.act_window">
+        <field name="name">Material Requisitions</field>
+        <field name="res_model">material.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Material Requisition
+            </p><p>
+                Manage internal requests for raw materials from various departments.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="material_requisition_menu_item"
+              name="Material Requisitions"
+              parent="material_registration_root_menu"
+              action="action_material_requisition"
+              sequence="50"/>
+
+</odoo>

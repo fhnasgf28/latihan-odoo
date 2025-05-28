@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'product','sale','stock','purchase', "uom"],
+    'depends': ['base', 'mail', 'product','sale','stock','purchase', "uom", 'hr'],
 
     # always loaded
     'data': [
@@ -29,6 +29,7 @@
         'data/product_attribute_data.xml',
         'views/material_material_views.xml',
         'views/product_product_views.xml',
+        'views/material_requisition_views.xml',
         'views/material_menu.xml',
     ],
     # only loaded in demonstration mode

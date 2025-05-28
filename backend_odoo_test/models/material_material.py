@@ -184,8 +184,18 @@ class MaterialMaterialOrderLine(models.Model):
     _description = 'Material Order Line'
 
     material_id = fields.Many2one('material.material', string='Material')
-    product_id = fields.Many2one('product.template', string='Product',
-        domain=[('is_material', '=', True)],
-        required=True
-    )
+    product_id = fields.Many2one('product.template', string='Product',domain=[('is_material', '=', True)],required=True)
+    quantity_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', related='material_id.material_uom_id',readonly=True)
+    requisition_id = fields.Many2one('material.requisition', string='Material Requisition', required=True,ondelete='cascade')
     quantity = fields.Float(string='Quantity', default=1.0)
+    available_quantity = fields.Float(string='Available Qty',compute='_compute_available_quantity',help="Quantity currently available in stock for this material.")
+
+    # @api.onchange('material_id')
+    # def _onchange_material_id(self):
+    #     if self.material_id and self.material_id.material_uom_id:
+    #         self.quantity_uom_id = self.material_id.material_uom_id.id
+
+    @api.depends('material_id', 'material_id.current_stock_qty')
+    def _compute_available_quantity(self):
+        for line in self:
+            line.available_quantity = line.material_id.current_stock_qty if line.material_id else 0.0

@@ -8,5 +8,13 @@
             <field name="padding">4</field>
             <field name="company_id" eval="False"/>
         </record>
+
+        <record id="seq_material_requisition" model="ir.sequence">
+            <field name="name">Material Requisition Sequence</field>
+            <field name="code">material.requisition</field>
+            <field name="prefix">MREQ/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo>
