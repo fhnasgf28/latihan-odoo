@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class Material(models.Model):
     _name = 'material.material'
@@ -125,6 +125,11 @@ class Material(models.Model):
                             'price': buy_price,
                         })
         return res
+
+    @api.depends('material_name')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = rec.material_name
 
     def unlink(self):
         products_to_unlink = self.env['product.product']
