@@ -44,14 +44,10 @@ class MaterialRequisition(models.Model):
         for rec in self:
             if rec.state != 'approved':
                 raise UserError(_("Materials can only be transferred for 'Approved' requisitions."))
-            # TODO: Implement actual stock transfer logic here,
-            # e.g., create stock.picking records based on material_id.product_id
-
-            # Example: Check if all requested quantity is available
             for line in rec.line_ids:
                 if line.quantity > line.available_quantity:
                     raise UserError(
-                        _("Not enough stock for material '%s'. Requested: %s, Available: %s") % (line.material_id.name,
+                        _("Not enough stock for material '%s'. Requested: %s, Available: %s") % (line.material_id.material_name,
                                                                                                  line.quantity,
                                                                                                  line.available_quantity))
             rec.write({'state': 'done'})

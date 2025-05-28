@@ -26,7 +26,7 @@ class Material(models.Model):
     ], string='Lifecycle Stage', default='new',
         help="Current stage of the material in its lifecycle.")
     last_purchase_date = fields.Date(string='Last Purchase Date', compute='_compute_last_purchase_date', store=True, help="Date of the most recent purchase of this material.")
-    product_id = fields.Many2one('product.product', string='Related Product', ondelete='restrict',help="Link to the standard Odoo product used for stock and purchase.",copy=False,domain="[('is_material_product', '=', True)]")  # Akan dibuat di product.product
+    product_id = fields.Many2one('product.product', string='Related Product', ondelete='restrict',help="Link to the standard Odoo product used for stock and purchase.",copy=False,domain="[('is_material_product', '=', True)]")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('approved', 'Approved'),
@@ -184,9 +184,9 @@ class MaterialMaterialOrderLine(models.Model):
     _description = 'Material Order Line'
 
     material_id = fields.Many2one('material.material', string='Material')
-    product_id = fields.Many2one('product.template', string='Product',domain=[('is_material', '=', True)],required=True)
+    product_id = fields.Many2one('product.template', string='Product',domain=[('is_material', '=', True)])
     quantity_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', related='material_id.material_uom_id',readonly=True)
-    requisition_id = fields.Many2one('material.requisition', string='Material Requisition', required=True,ondelete='cascade')
+    requisition_id = fields.Many2one('material.requisition', string='Material Requisition', ondelete='cascade')
     quantity = fields.Float(string='Quantity', default=1.0)
     available_quantity = fields.Float(string='Available Qty',compute='_compute_available_quantity',help="Quantity currently available in stock for this material.")
 
