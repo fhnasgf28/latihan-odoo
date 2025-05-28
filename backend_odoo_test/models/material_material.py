@@ -198,4 +198,4 @@ class MaterialMaterialOrderLine(models.Model):
     @api.depends('material_id', 'material_id.current_stock_qty')
     def _compute_available_quantity(self):
         for line in self:
-            line.available_quantity = line.material_id.current_stock_qty if line.material_id else 0.0
+            line.available_quantity = line.material_id.current_stock_qty if line.material_id else 20
