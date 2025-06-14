@@ -18,15 +18,16 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'sale', 'purchase', 'purchase_request'],
+    'depends': ['base', 'sale', 'purchase', 'purchase_request', 'account'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/sale_order_views.xml',
         'views/purchase_request_views.xml',
         'views/stock_picking_views.xml',
+        'views/account_move_views.xml',
+        'wizards/delivery_tolerance_warning_views.xml',
     ],
     # only loaded in demonstration mode
 }
-

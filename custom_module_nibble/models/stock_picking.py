@@ -29,12 +29,33 @@ class StockPicking(models.Model):
                     
                     # Check if delivery exceeds tolerance
                     if float_compare(total_potential_qty, max_allowed_qty, precision_digits=precision) > 0:
+                        # Skip validation if context flag is set (coming from wizard confirmation)
+                        if self.env.context.get('bypass_tolerance_warning'):
+                            continue
+                            
                         display_tolerance_percent = tolerance_decimal * 100
+                        remaining_qty = max_allowed_qty - previously_delivered_qty
+
+                        warning_message = _(
+                            "Delivery Exceeds Tolerance Limit!<br/><br/>"
+                            f"Maximum Allowed: {max_allowed_qty:.2f} ({display_tolerance_percent:.2f}% tolerance)<br/><br/>"
+                            f"Remaining allowed to deliver: {remaining_qty:.2f}<br/><br/>"
+                            "Do you want to proceed anyway?"
+                        )
                         
-                        raise UserError(_(
-                            "Delivery Exceeds Tolerance Limit!\n\n"
-                            f"Maximum Allowed: {max_allowed_qty:.2f} ({display_tolerance_percent:.2f}% tolerance)\n\n"
-                            "Please adjust the delivery quantity to stay within tolerance limits."
-                        ))
+                        # Create and show warning wizard
+                        wizard = self.env['delivery.tolerance.warning'].create({
+                            'picking_id': picking.id,
+                            'warning_message': warning_message,
+                        })
+                        
+                        return {
+                            'name': _('Delivery Tolerance Warning'),
+                            'type': 'ir.actions.act_window',
+                            'res_model': 'delivery.tolerance.warning',
+                            'res_id': wizard.id,
+                            'view_mode': 'form',
+                            'target': 'new',
+                        }
 
         return super(StockPicking, self).button_validate()
