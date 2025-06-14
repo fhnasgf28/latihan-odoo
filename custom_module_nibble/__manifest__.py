@@ -28,6 +28,7 @@ Long description of module's purpose
         'views/stock_picking_views.xml',
         'views/account_move_views.xml',
         'wizards/delivery_tolerance_warning_views.xml',
+        'wizards/account_payment_register_views.xml',
     ],
     # only loaded in demonstration mode
 }
