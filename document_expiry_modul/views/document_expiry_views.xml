@@ -1,0 +1,44 @@
+<odoo>
+    <record id="view_document_expiry_form" model="ir.ui.view">
+        <field name="name">document.expiry.form</field>
+        <field name="model">document.expiry</field>
+        <field name="arch" type="xml">
+            <form string="Document Expiry">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="partner_id"/>
+                        <field name="document_type"/>
+                        <field name="issue_date"/>
+                        <field name="expiry_date"/>
+                        <field name="attachment_id"/>
+                        <field name="state" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_document_expiry_tree" model="ir.ui.view">
+        <field name="name">document.expiry.tree</field>
+        <field name="model">document.expiry</field>
+        <field name="arch" type="xml">
+            <tree string="Document Expiry">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="document_type"/>
+                <field name="expiry_date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_document_expiry" model="ir.actions.act_window">
+        <field name="name">Document Expiry</field>
+        <field name="res_model">document.expiry</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_document_expiry_root" name="Document Expiry" sequence="10"/>
+    <menuitem id="menu_document_expiry_main" name="Documents" parent="menu_document_expiry_root" action="action_document_expiry"/>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Actions -->
+    <record id="action_gemini_chat" model="ir.actions.act_window">
+        <field name="name">Gemini Chat</field>
+        <field name="res_model">gemini.chat</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Mulai chat baru dengan Gemini AI
+            </p>
+        </field>
+    </record>
+    
+    <!-- Server Actions -->
+    <record id="action_send_to_gemini" model="ir.actions.server">
+        <field name="name">Kirim ke Gemini</field>
+        <field name="model_id" ref="model_gemini_chat"/>
+        <field name="binding_model_id" ref="model_gemini_chat"/>
+        <field name="state">code</field>
+        <field name="code">
+            records.action_send_to_gemini()
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_gemini_chat_root"
+              name="Gemini Chat"
+              sequence="10"/>
+
+    <menuitem id="menu_gemini_chat"
+              name="Chat"
+              parent="menu_gemini_chat_root"
+              action="action_gemini_chat"
+              sequence="10"/>
+</odoo>
