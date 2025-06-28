@@ -48,17 +48,9 @@ class GeminiChat(models.Model):
 
     def send_to_gemini(self, message):
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        payload = {"message": message}
-        token = self.env['ir.config_parameter'].sudo().get_param('external_api_caller.bearer_token')
-        headers = {
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        }
         response = self.call_external_api(
             url=url,
             method='POST',
-            payload=payload,
-            custom_headers = headers
         )
         print(f"send_to_gemini() called with message: {message}, got response: {response}")
         _logger.info(f"send_to_gemini() called with message: {message}, got response: {response}")
