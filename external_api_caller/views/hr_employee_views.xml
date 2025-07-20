@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='bank_account_id']" position="after">
+            <label for="image_from_url"/> <div>
+                <field name="image_from_url" placeholder="Paste image URL here" class="oe_inline"/>
+                <button name="action_fetch_image_from_url" type="object"
+                        string="Fetch Image" icon="fa-download" class="oe_link oe_inline"/>
+            </div>
+            <field name="image_view_url" widget="image" class="oe_avatar" nolabel="1"/>
+        </xpath>
+        </field>
+    </record>
+
+</odoo>
