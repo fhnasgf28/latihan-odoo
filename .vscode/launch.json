@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        // Launch Odoo using the conda env Python interpreter (fixed)
+        {
+            "name": "Odoo: Launch odoo-bin (conda interpreter)",
+            "type": "python",
+            "request": "launch",
+            // <-- program must be the odoo-bin script, NOT the python binary
+            "program": "/home/fhnasgf/Documents/odoo19/odoo-bin",
+            "args": [
+                "-c",
+                "/home/fhnasgf/Documents/odoo19/conf/odoo19.conf",
+                
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": false,
+            // explicitly tell debugger which python interpreter to use
+            "pythonPath": "/home/fhnasgf/miniconda3/envs/odoo19/bin/python3",
+            "python": "/home/fhnasgf/miniconda3/envs/odoo19/bin/python3"
+        },
+
+        // Attach ke proses Odoo yang sudah dijalankan dengan debugpy (mis. python -m debugpy --listen 5678 --wait-for-client odoo-bin ...)
+        
+    ]
+}
