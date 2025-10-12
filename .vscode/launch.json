@@ -15,7 +15,10 @@
             "args": [
                 "-c",
                 "/home/fhnasgf/Documents/odoo19/conf/odoo19.conf",
-                
+                "-d",
+                "odoo-new",
+                "--log-level=debug",
+                "--log-handler=:DEBUG"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
