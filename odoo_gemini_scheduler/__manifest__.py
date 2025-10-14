@@ -23,7 +23,8 @@ Long description of module's purpose
     'data': [
         'security/ir.model.access.csv',
         'data/ir_cron_data.xml',
-        'data/mail_template_data.xml',
+        'data/ir_cron_data.xml',
+        'views/res_config_settings_views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
