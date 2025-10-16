@@ -3,6 +3,7 @@ import logging
 import google.generativeai as genai
 import traceback
 import sys
+import os
 import requests
 from odoo import api, models, _
 from odoo.exceptions import UserError, ValidationError
@@ -78,20 +79,7 @@ class GeminiMotivator(models.AbstractModel):
             print("DEBUG: configuring genai with provided API key...")
             sys.stdout.flush()
             genai.configure(api_key=api_key)
-
-            # Prompt yang dirancang untuk menghasilkan pesan motivasi
-            prompt = """
-            Berikan satu wawasan atau saran yang realistis tentang salah satu topik berikut:
-            - Strategi membangun kekayaan jangka panjang
-            - Pengembangan karir dan peningkatan keterampilan profesional
-            - Membangun kepercayaan diri yang tahan banting
-            - Psikologi sukses dan pola pikir berkembang
-            
-            Sertakan contoh konkret yang bisa langsung diterapkan.
-            Sampaikan dalam bahasa Indonesia yang jelas dan menginspirasi, maksimal 3 - 6 kalimat.
-            """
-
-            # coba model utama dulu (pakai model flash untuk akun free)
+            prompt = self._get_next_prompt()
             tried_models = []
             success = False
             motivation_text = ""
@@ -122,7 +110,6 @@ class GeminiMotivator(models.AbstractModel):
 
             # 3. Kirim pesan motivasi ke Telegram
             telegram_sent = self._send_telegram_message(f"💡 <b>Insight Hari Ini</b>\n\n{motivation_text}")
-
             if telegram_sent:
                 _logger.info("Insight message sent to Telegram successfully")
             else:
@@ -133,3 +120,21 @@ class GeminiMotivator(models.AbstractModel):
             _logger.error(error_msg)
             self._send_telegram_message(f"❌ <b>Error:</b> {error_msg}")
             traceback.print_exc()
+
+    def _get_next_prompt(self):
+        try:
+            module_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            prompts_path = os.path.join(module_path, 'data', 'prompts.txt')
+            print(prompts_path)
+            with open(prompts_path, 'r', encoding='utf-8') as f:
+                prompts = [line.strip() for line in f if line.strip()]
+            if not prompts:
+                return "Tidak ada prompt yang tersedia."
+            last_index = int(self.env['ir.config_parameter'].sudo().get_param('gemini.last_prompt_index', -1))
+            next_index = (last_index + 1) % len(prompts)
+            self.env['ir.config_parameter'].sudo().set_param('gemini.last_prompt_index', next_index)
+            base_prompt = prompts[next_index]
+            return f"{base_prompt} (Jawab dengan singkat dan informatif, maksimal 4 - 8 kalimat)"
+        except Exception as e:
+                _logger.error(f"Error getting next prompt: {str(e)}")
+                return "Berikan saran yang bermanfaat dan inspiratif tentang pengembangan diri atau karir."
