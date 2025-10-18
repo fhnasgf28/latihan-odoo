@@ -56,7 +56,8 @@ class GeminiMotivator(models.AbstractModel):
         # 1. Ambil API Key dari System Parameters
         config_params = self.env['ir.config_parameter'].sudo()
         api_key = config_params.get_param('gemini.api_key')
-
+        if api_key is None:
+            config_params.set_param('gemini.api_key')
         # DEBUG: print presence & masked key to help diagnosis
         try:
             print("DEBUG: gemini.api_key found?", bool(api_key))
