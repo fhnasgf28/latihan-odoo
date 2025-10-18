@@ -13,122 +13,11 @@ Apa saja kebiasaan pagi yang bisa meningkatkan produktivitas sepanjang hari?
 Bagaimana cara membangun hubungan profesional yang bermakna di dunia kerja?
 Apa saja tantangan umum dalam pengembangan diri dan cara mengatasinya?
 Bagaimana teknologi akan mengubah cara kita hidup dalam 10 tahun ke depan?
-
-4 days ago
-2 days ago
-1h ago
-9m ago
-1s ago
-Show More
-I'll help you update the cron job to run every 5 minutes. Here's the updated ir_cron_data.xml:
-
-xml
-<record id="ir_cron_gemini_reminder" model="ir.cron">
-    <field name="name">Gemini: Kirim Insight Harian</field>
-    <field name="model_id" ref="model_gemini_motivator"/>
-    <field name="state">code</field>
-    <field name="code">model._run_gemini_reminder_cron()</field>
-    <field name="interval_number">5</field>
-    <field name="interval_type">minutes</field>
-    <field name="active" eval="True"/>
-</record>
-Key changes made:
-
-Changed interval_number from 1 to 5
-Changed interval_type from days to minutes
-Updated the name to "Kirim Insight Harian" to match your recent changes
-After making this change:
-
-Save the file
-Update the module in Odoo to apply the changes
-The cron job will now run every 5 minutes
-Note: Make sure your Odoo server's cron worker is running properly for this to work. If you're in a development environment, you might need to restart the server for the changes to take effect.
-
-Feedback submitted
-
-
-@gemini_scheduler.py#L82-90 dibagian kodingan ini, bantu saya agar prompt ini diambil dari file yang menampung pertanyaan, sehingga nanti akan diambil satu persatu secara sequen, bikin method baru saja, kemudian nanti kita akan panggil disini,
-
-I'll help you create a new method to manage prompts from a file. Here's how we'll do it:
-
-First, create a new directory called data in your module if it doesn't exist, and add a file called prompts.txt with your prompts, one per line.
-Update your
-manifest.py
- to include the new data file:
-python
-'data': [
-    'security/ir.model.access.csv',
-    'data/ir_cron_data.xml',
-    'data/prompts.txt',  # Add this line
-    'views/res_config_settings_views.xml',
-],
-Add this method to your
-gemini_scheduler.py
-:
-python
-def _get_next_prompt(self):
-    """Get the next prompt from the prompts file in sequence."""
-    try:
-        # Get the path to the prompts file
-        prompts_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'prompts.txt')
-
-        # Read all prompts
-        with open(prompts_path, 'r', encoding='utf-8') as f:
-            prompts = [line.strip() for line in f if line.strip()]
-
-        if not prompts:
-            return "Tidak ada prompt yang tersedia."
-
-        # Get the last used prompt index from ir.config_parameter
-        last_index = int(self.env['ir.config_parameter'].sudo().get_param(
-            'gemini.last_prompt_index', -1
-        ))
-
-        # Calculate next index (cycle back to 0 if at the end)
-        next_index = (last_index + 1) % len(prompts)
-
-        # Save the next index
-        self.env['ir.config_parameter'].sudo().set_param(
-            'gemini.last_prompt_index', next_index
-        )
-
-        return prompts[next_index]
-
-    except Exception as e:
-        _logger.error(f"Error getting next prompt: {str(e)}")
-        return "Berikan saran yang bermanfaat dan inspiratif tentang pengembangan diri atau karir."
-Then modify your existing code to use this method:
-python
-# Ganti bagian prompt dengan:
-prompt = self._get_next_prompt()
-Create data/prompts.txt with your prompts, for example:
 Berikan satu wawasan tentang strategi membangun kekayaan jangka panjang yang realistis.
 Bagaimana cara meningkatkan keterampilan profesional di era digital saat ini?
 Jelaskan pentingnya pola pikir berkembang dalam meraih kesuksesan.
 Berikan tips praktis untuk mengelola keuangan pribadi dengan bijak.
 Bagaimana cara membangun jaringan profesional yang efektif?
-This implementation will:
-
-Read prompts from a text file
-Keep track of the last used prompt using ir.config_parameter
-Cycle through prompts in sequence
-Fall back to a default message if there's any error
-The prompts will be used one by one each time the cron job runs, and it will cycle back to the beginning when it reaches the end of the list.
-
-Feedback submitted
-
-Your modified files:
-gemini_scheduler.py
-/media/fhnasgf/Ngoding/NGODING/latihan-odoo/odoo_gemini_scheduler/models
-+19
--10
-
-bantu saya tambahkan prompts 15 prompt terkait dengan psikologi, kesehatan, pola pikir, informasi dari buku tertentu, teknologi, karir, fakta unik
-
-I'll help you create a prompts.txt file with 15 diverse prompts covering psychology, health, mindset, books, technology, career, and fun facts. Here's the content you should add to
-prompts.txt
-:
-
 Jelaskan konsep "Growth Mindset" dari Carol Dweck dan berikan contoh penerapannya dalam kehidupan profesional.
 Apa saja kebiasaan pagi yang direkomendasikan oleh para ahli produktivitas untuk memulai hari dengan lebih baik?
 Bagaimana cara kerja kecerdasan buatan dalam memprediksi preferensi pengguna di platform media sosial?
@@ -144,22 +33,6 @@ Bagaimana cara membangun personal branding yang kuat di platform profesional sep
 Jelaskan fenomena "Impostor Syndrome" dan strategi mengatasinya di dunia kerja.
 Apa saja prinsip utama dari buku "Atomic Habits" oleh James Clear tentang pembentukan kebiasaan?
 Bagaimana perkembangan teknologi blockchain akan mengubah masa depan industri keuangan dan pekerjaan?
-Make sure to:
-
-Create the data directory if it doesn't exist
-Add this file to your
-manifest.py
- under the 'data' key
-The prompts will be used in sequence each time the cron job runs
-Would you like me to help you with any of these additional steps?
-
-Feedback submitted
-
-
-pertanyaannya general ya,agar hasil jawabannya bisa unix, jangan ada yang sama
-
-I'll help you create a more general version of the prompts to ensure unique and diverse responses. Here's the updated content for your prompts.txt:
-
 Jelaskan konsep psikologi yang menarik dan berikan contoh penerapannya dalam kehidupan sehari-hari.
 Apa saja kebiasaan sehat yang bisa meningkatkan kualitas hidup seseorang?
 Bagaimana perkembangan teknologi terbaru mempengaruhi cara kita bekerja dan berinteraksi?
