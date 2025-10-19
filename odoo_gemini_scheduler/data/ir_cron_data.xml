@@ -11,5 +11,18 @@
             <field name="interval_type">days</field>
             <field name="active" eval="True"/>
         </record>
+
+        <record id="ir_cron_daily_reflection" model="ir.cron">
+          <field name="name">Daily Self Reflection Scheduler</field>
+          <field name="model_id" ref="model_daily_journal"/>
+          <field name="state">code</field>
+          <field name="code">model.send_daily_reflection()</field>
+          <field name="active">True</field>
+          <field name="interval_type">days</field>
+          <field name="interval_number">1</field>
+          <field name="numbercall">-1</field>
+          <!-- set nextcall to desired time in UTC (adjust) -->
+          <field name="nextcall">2025-10-20 14:00:00</field>
+        </record>
     </data>
 </odoo>
