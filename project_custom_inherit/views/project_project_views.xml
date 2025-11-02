@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_project_view_form_inherited" model="ir.ui.view">
+            <field name="name">project.project.form.inherited</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="project_type"/>
+                    <field name="client_contact_id" domain="[('parent_id', '=', partner_id)]"/>
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Budgeting &amp; Costing">
+                        <group>
+                            <field name="total_budget"/>
+                            </group>
+                    </page>
+                    <page string="Scope of Work (SOW)">
+                        <field name="scope_of_work" nolabel="1"/>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="project_project_view_tree_inherited" model="ir.ui.view">
+            <field name="name">project.project.tree.inherited</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="project_type"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="project_project_search_view_inherited" model="ir.ui.view">
+            <field name="name">project.project.search.inherited</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_project_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search/group" position="inside">
+                    <filter string="Tipe Proyek" name="group_by_project_type" context="{'group_by':'project_type'}"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_task_view_form_inherited" model="ir.ui.view">
+            <field name="name">project.task.form.inherited</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="task_priority" widget="radio"/>
+                </xpath>
+                <xpath expr="//field[@name='project_id']" position="after">
+                    <field name="task_type"/>
+                    <field name="is_billable"/>
+                </xpath>
+            </field>
+        </record>
+
+<!--        <record id="project_task_view_kanban_inherited" model="ir.ui.view">-->
+<!--            <field name="name">project.task.kanban.inherited</field>-->
+<!--            <field name="model">project.task</field>-->
+<!--            <field name="inherit_id" ref="project.view_task_kanban"/>-->
+<!--            <field name="arch" type="xml">-->
+
+<!--                <xpath expr="//div[hasclass('o_kanban_record_bottom_left')]" position="inside">-->
+<!--                    <div class="mt-1">-->
+<!--                        <field name="task_priority" widget="badge"-->
+<!--                               decoration-danger="task_priority == '3'"-->
+<!--                               decoration-warning="task_priority == '2'"-->
+<!--                               decoration-info="task_priority == '1'"/>-->
+<!--                        <field name="task_type" widget="badge"-->
+<!--                               decoration-primary="task_type == 'feature'"-->
+<!--                               decoration-info="task_type == 'bug'"/>-->
+<!--                    </div>-->
+<!--                </xpath>-->
+
+<!--                <xpath expr="//div[hasclass('o_kanban_record_top')]/div[hasclass('o_kanban_record_headings')]" position="after">-->
+<!--                    <div class="o_kanban_record_top_right">-->
+<!--                        <t t-if="record.is_billable.raw_value">-->
+<!--                            <i class="fa fa-usd" title="Billable" aria-label="Billable"/>-->
+<!--                        </t>-->
+<!--                    </div>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--        </record>-->
+
+        <record id="project_task_view_tree_inherited" model="ir.ui.view">
+            <field name="name">project.task.tree.inherited</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_tree2"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='project_id']" position="after">
+                    <field name="task_priority"/>
+                    <field name="task_type"/>
+                    <field name="is_billable"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="project_task_search_view_inherited" model="ir.ui.view">
+            <field name="name">project.task.search.inherited</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_search_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search/group" position="inside">
+                    <filter string="Prioritas" name="group_by_task_priority" context="{'group_by':'task_priority'}"/>
+                    <filter string="Tipe Tugas" name="group_by_task_type" context="{'group_by':'task_type'}"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

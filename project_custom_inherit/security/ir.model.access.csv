@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_custom_inherit_project_custom_inherit,project_custom_inherit.project_custom_inherit,model_project_custom_inherit_project_custom_inherit,base.group_user,1,1,1,1
