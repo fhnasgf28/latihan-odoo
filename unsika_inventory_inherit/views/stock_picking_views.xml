@@ -1,0 +1,19 @@
+<odoo>
+    <record id="view_picking_form_inherit_high_value" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.high.value</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form/sheet" position="before">
+                <widget name="web_ribbon" title="HIGH VALUE" bg_color="bg-danger"
+                invisible = "[('is_high_value', '=', False)]"/>
+            </xpath>
+
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="total_value" widget="monetary"/>
+                <field name="is_high_value" invisible="1"/> </xpath>
+
+        </field>
+    </record>
+</odoo>
