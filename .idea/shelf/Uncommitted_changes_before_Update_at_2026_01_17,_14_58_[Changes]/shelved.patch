@@ -1,0 +1,82 @@
+Index: project_custom_inherit/views/crm_views.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/project_custom_inherit/views/crm_views.xml b/project_custom_inherit/views/crm_views.xml
+new file mode 100644
+--- /dev/null	(date 1765547505895)
++++ b/project_custom_inherit/views/crm_views.xml	(date 1765547505895)
+@@ -0,0 +1,25 @@
++<odoo>
++    <record id="view_crm_lead_kanban_lifenote" model="ir.ui.view">
++        <field name="name">crm.lead.kanban.view.life.note</field>
++        <field name="model">crm.lead</field>
++        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
++        <field name="arch" type="xml">
++
++            <!-- Tambahkan badge di bagian bawah kartu -->
++            <xpath expr="//field[@name='partner_id']" position="after">
++                <div class="o_kanban_storylife" style="margin-top:6px; padding:4px 8px; background:#e6f4ff; border-radius:6px; font-size:12px; color:#2763b0;">
++                    <field name="date_deadline"/>
++                    <t t-if="record.x_life_note">
++                        <span><t t-esc="record.x_life_note"/></span>
++                    </t>
++                    <t t-else="">
++                        <span>“Nikmati hal kecil, terus kejar hal besar.”</span>
++                    </t>
++                    <br/>
++                    <field name="date_deadline"/>
++                </div>
++            </xpath>
++
++        </field>
++    </record>
++</odoo>
+Index: project_custom_inherit/models/crm.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/project_custom_inherit/models/crm.py b/project_custom_inherit/models/crm.py
+new file mode 100644
+--- /dev/null	(date 1765546407615)
++++ b/project_custom_inherit/models/crm.py	(date 1765546407615)
+@@ -0,0 +1,10 @@
++from odoo import fields, models, api
++
++class Crm(models.Model):
++    _inherit = 'crm.lead'
++
++    project_id = fields.Many2one('project.project', string='Project')
++    x_life_note = fields.Char(
++        string="Life Note",
++        help="Catatan singkat, kutipan hidup, atau pesan personal untuk ditampilkan di kanban."
++    )
+\ No newline at end of file
+Index: project_custom_inherit/__manifest__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\n    'name': \"project_custom_inherit\",\n\n    'summary': \"Short (1 phrase/line) summary of the module's purpose\",\n\n    'description': \"\"\"\nLong description of module's purpose\n    \"\"\",\n\n    'author': \"My Company\",\n    'website': \"https://www.yourcompany.com\",\n\n    # Categories can be used to filter modules in modules listing\n    # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml\n    # for the full list\n    'category': 'Uncategorized',\n    'version': '0.1',\n\n    # any module necessary for this one to work correctly\n    'depends': ['base', 'project', 'hr_timesheet'],\n\n    # always loaded\n    'data': [\n        # 'security/ir.model.access.csv',\n        'views/project_project_views.xml',\n        'views/project_task_views.xml',\n    ],\n    # only loaded in demonstration mode\n    'demo': [\n        'demo/demo.xml',\n    ],\n}\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/project_custom_inherit/__manifest__.py b/project_custom_inherit/__manifest__.py
+--- a/project_custom_inherit/__manifest__.py	(revision 3cb2c2727ffbc8a664e0f582f1750c54d8fa3c2e)
++++ b/project_custom_inherit/__manifest__.py	(date 1765546195142)
+@@ -17,13 +17,14 @@
+     'version': '0.1',
+ 
+     # any module necessary for this one to work correctly
+-    'depends': ['base', 'project', 'hr_timesheet'],
++    'depends': ['base', 'project', 'hr_timesheet', 'crm'],
+ 
+     # always loaded
+     'data': [
+         # 'security/ir.model.access.csv',
+         'views/project_project_views.xml',
+         'views/project_task_views.xml',
++        'views/crm_views.xml',
+     ],
+     # only loaded in demonstration mode
+     'demo': [
