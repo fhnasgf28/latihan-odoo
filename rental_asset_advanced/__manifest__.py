@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'Rental Asset Advanced (Community) - Approval Matrix',
+    'version': '14.0.1.0.0',
+    'summary': 'Advanced training project: rental flow + approval matrix + penalties + reports',
+    'category': 'Operations/Rental',
+    'author': 'Training Project',
+    'license': 'LGPL-3',
+    'depends': ['base', 'mail'],
+    'data': [
+    'security/security.xml',
+    'security/ir.model.access.csv',
+    'data/sequence.xml',
+    'data/cron.xml',
+    'data/mail_activity.xml',
+    'views/menu.xml',
+    'views/rental_asset_views.xml',
+    'views/approval_matrix_views.xml',
+    'views/rental_order_views.xml',
+    'views/penalty_views.xml',
+    'wizards/rental_request_approval_wizard_views.xml',
+    'wizards/rental_return_wizard_views.xml',
+    'reports/rental_agreement_report.xml',
+    'reports/rental_agreement_template.xml',
+],
+    'application': True,
+    'installable': True,
+}
