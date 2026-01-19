@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_crm_advanced_training_crm_advanced_training,crm_advanced_training.crm_advanced_training,model_crm_advanced_training_crm_advanced_training,base.group_user,1,1,1,1
+access_crm_sla_policy_manager,crm.sla.policy manager,model_crm_sla_policy,crm_advanced_training.group_crm_adv_manager,1,1,1,1
+access_crm_assignment_rule_manager,crm.lead.assignment.rule manager,model_crm_lead_assignment_rule,crm_advanced_training.group_crm_adv_manager,1,1,1,1
