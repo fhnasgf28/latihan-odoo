@@ -81,3 +81,36 @@ class CrmMidtransTransaction(models.Model):
         data = resp.json()
         fingerprint = f"{data.get('transaction_status')}|{data.get('fraud_status')}|{data.get('status_code')}|{data.get('gross_amount')}"
         self._apply_midtrans_notification(data, fingerprint=fingerprint)
+
+    def _apply_midtrans_notification(self, payload, fingerprint=None):
+        self.ensure_one()
+        tx_status = payload.get("transaction_status")
+        fraud_status = payload.get("fraud_status")
+        status_code = payload.get("status_code", "")
+        new_state = self.state
+        if tx_status in ("settlement",):
+            new_state = "paid"
+        elif tx_status == 'capture':
+            new_state = "paid" if (fraud_status or "").lower() == "accept" else "pending"
+        elif tx_status in ("pending",):
+            new_state = "pending"
+        elif tx_status in ("expire", ):
+            new_state = "expired"
+        elif tx_status in ("cancel", ""):
+            new_state = "cancelled"
+        elif tx_status in ("deny", "failure"):
+            new_state = "failed"
+
+        self.write(
+            {
+                "transaction_status": tx_status,
+                "fraud_status": fraud_status,
+                "payment_type": payload.get("payment_type"),
+                "status_code": status_code,
+                "gross_amount": str(payload.get("gross_amount", "")),
+                "raw_notification": json.dumps(payload, indent=2, ensure_ascii=False),
+                "last_notification_at": fields.Datetime.now(),
+                "state": new_state,
+                "last_fingerprint": fingerprint or self.last_fingerprint,
+            }
+        )
