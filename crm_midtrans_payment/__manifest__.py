@@ -21,13 +21,18 @@ Long description of module's purpose
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+        "security/security.xml",
+        "security/ir.model.access.csv",
+        "data/sequence.xml",
+        "views/res_config_settings_views.xml",
+        "views/midtrans_transaction_views.xml",
+        "views/crm_lead_views.xml",
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
+    "installable": True,
+    "application": False,
 }
 

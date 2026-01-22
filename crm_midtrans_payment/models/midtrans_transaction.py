@@ -114,3 +114,57 @@ class CrmMidtransTransaction(models.Model):
                 "last_fingerprint": fingerprint or self.last_fingerprint,
             }
         )
+        self.message_post(body=_("Midtrans webhook/status update: %s (fraud=%s)") % (tx_status, fraud_status))
+        if new_state == "paid":
+            self.lead_id._action_set_won_from_midtrans(self)
+
+    @api.model
+    def create_snap_transaction(self, lead, amount):
+        if amount <= 0:
+            raise UserError(_("Amount must be greater than 0"))
+        order_id = self.env['ir.sequence'].next_by_code('crm.midtrans.tx') or f"MTX-{lead.id}"
+        tx = self.create(
+            {
+                "name": order_id,
+                "lead_id": lead.id,
+                "amount": amount,
+                "state": "draft",
+            }
+        )
+        url = f"{tx._snap_base_url()}/snap/v1/transactions"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application",
+            "Authorization": tx._midtrans_auth_header(),
+        }
+        payload = {
+            "transaction_details": {
+                "order_id": order_id,
+                "gross_amount": int(round(amount)),
+            },
+            "customer_details": {
+                "first_name": (lead.partner_name or lead.contact_name or lead.name or "Customer")[:255],
+                "email": lead.email_from or "",
+                "phone": lead.phone or lead.mobile or "",
+            },
+            # (optional) callbacks: if you have a public return URL
+            # "callbacks": {"finish": "https://yourdomain/some/thankyou"},
+        }
+
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+        if resp.status_code >= 400:
+            raise UserError(_("Midtrans Snap request failed (%s): %s") % (resp.status_code, resp.text))
+
+        data = resp.json()
+        tx.write(
+            {
+                "snap_token": data.get("token"),
+                "snap_redirect_url": data.get("redirect_url"),
+                "state": "pending",
+            }
+        )
+        tx.message_post(body=_("Snap created. Redirect URL stored."))
+
+        return tx
+
+
