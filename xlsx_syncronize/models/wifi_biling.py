@@ -1,16 +1,19 @@
-from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
 import logging
-_logger = logging.getLogger(__name__)
-import socket
-import re
-from dateutil.relativedelta import relativedelta
 import os
-from datetime import date, datetime
-import gspread
 import random
+import re
+import socket
+from datetime import date, datetime
+
+import gspread
+from dateutil.relativedelta import relativedelta
 from gspread.exceptions import WorksheetNotFound
 from oauth2client.service_account import ServiceAccountCredentials
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 class WifiBilling(models.Model):
     _name = 'wifi.billing'
@@ -84,16 +87,10 @@ class WifiBilling(models.Model):
         try:
             client = self._get_google_client()
             worksheet = self._get_worksheet(client)
-            # Ensure headers and month column exist
             self._ensure_sheet_headers(worksheet)
             bulan = datetime.now().strftime('%B %Y')
-            self._ensure_month_column(worksheet, bulan)
-            # Find or create row for customer
+            headers = self._ensure_month_column(worksheet, bulan)
             row_index = self._find_or_create_customer_row(worksheet)
-            # if self._is_duplicate_entry(worksheet):
-            #     raise ValidationError(
-            #         f"Customer '{self.partner_id.name}' dengan nomor {self.phone} sudah melakukan pembayaran untuk bulan {bulan}.")
-            headers = worksheet.row_values(1)
             if bulan not in headers:
                 raise ValidationError(f"Kolom bulan '{bulan}' tidak ditemukan di header.")
             col_index = headers.index(bulan) + 1
@@ -130,7 +127,6 @@ class WifiBilling(models.Model):
         return records
 
     def _cron_retry_google_sync(self):
-        print("kodingan ir cron ini di eksekusi")
         if self.is_internet_available():
             pending_records = self.search([('sync_status', '=', 'pending')])
             for record in pending_records:
@@ -174,14 +170,11 @@ class WifiBilling(models.Model):
         return res
 
     def unlink(self):
-        print("apakah ini menjadi salah satu hal")
         for rec in self:
             try:
                 rec._delete_from_google_sheet()
             except Exception as e:
-                print(f"Gagal hapus data dari Google Sheet untuk record {rec.partner_id.name}: {str(e)}")
-                # Jangan raise UserError, supaya Odoo tetap lanjut hapus
-                pass
+                _logger.warning("Gagal hapus data dari Google Sheet untuk record %s: %s", rec.partner_id.name, str(e))
         return super(WifiBilling, self).unlink()
 
     def action_confirm_delete(self):
@@ -199,11 +192,11 @@ class WifiBilling(models.Model):
             raise UserError("Data tidak ditemukan di Google Sheet.")
 
     def _find_row_index_in_sheet(self, worksheet):
-        all_values = worksheet.get_all_values()
-        for idx, row in enumerate(all_values, start=2):
+        all_records = worksheet.get_all_records()
+        for idx, row in enumerate(all_records, start=2):
             if row.get('ID') == self.sequence_id:
-                worksheet.delete_rows(idx)
-                return
+                return idx
+        return False
 
     @api.depends('is_paid', 'billing_date')
     def _compute_is_overdue(self):
@@ -233,7 +226,6 @@ class WifiBilling(models.Model):
         creds_path = os.path.join(os.path.dirname(__file__), '..','config', 'odoo_spreedsheet.json')
         creds_path = os.path.abspath(creds_path)
         creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
-        print(creds)
         return gspread.authorize(creds)
 
     def _get_worksheet(self, client):
@@ -254,8 +246,7 @@ class WifiBilling(models.Model):
         tanggal = str(self.billing_date or fields.Date.today())
         amount = str(self.amount or "0")
         status = 'Paid' if self.is_paid else 'Belum Bayar'
-        print(bulan, tanggal,amount,status)
-        return [self.sequence_id,self.partner_id.name, self.phone, self.email, tanggal, amount, status, bulan]
+        return [self.sequence_id, self.partner_id.name, self.phone, self.email, tanggal, amount, status, bulan]
 
     def _is_duplicate_entry(self, worksheet):
         bulan = datetime.now().strftime('%B %Y')
@@ -273,6 +264,8 @@ class WifiBilling(models.Model):
         headers = worksheet.row_values(1)
         if bulan not in headers:
             worksheet.update_cell(1, len(headers) + 1, bulan)
+            headers.append(bulan)
+        return headers
 
     def _find_or_create_customer_row(self, worksheet):
         all_records = worksheet.get_all_records()

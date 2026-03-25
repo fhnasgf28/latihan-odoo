@@ -1,5 +1,4 @@
-from odoo import models, fields, api
-import random
+from odoo import api, fields, models
 
 
 class ResPartner(models.Model):
