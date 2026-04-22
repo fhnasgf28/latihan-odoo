@@ -1,53 +1,89 @@
 import logging
 import sys
+import re
 
-# ANSI Escape Codes for Colors
-# Note: 33 is Yellow/Brown, which commonly represents Orange in basic ANSI
+# ANSI Escape Codes for Colors and Styles
 COLORS = {
     'ORANGE': '\033[33m',
     'BLUE': '\033[34m',
     'RED': '\033[31m',
     'GREEN': '\033[32m',
+    'WHITE': '\033[97m', # Bright White
+    # Vibrant 256-colors for Testing Messages (Distinct & Bright)
+    'VIBRANT_ORANGE': '\033[1;38;5;214m', # For Tag Text
+    'BRIGHT_SKY': '\033[1;38;5;51m',      # Testing1 Message Color
+    'BRIGHT_LIME': '\033[1;38;5;118m',    # Testing2 Message Color
+    'BRIGHT_PINK': '\033[1;38;5;201m',    # Testing3 Message Color
+    # Backgrounds for Tags
+    'BG_BRIGHT_GREEN': '\033[102m',
+    'BG_BRIGHT_PINK': '\033[105m',
+    'BG_BRIGHT_YELLOW': '\033[103m',
+    'BG_BRIGHT_RED': '\033[101m',
+    'BG_ORANGE': '\033[48;5;208m',
+    'BOLD': '\033[1m',
     'RESET': '\033[0m'
 }
 
-# ANSI for bold
-ANSI_BOLD = '\033[1m'
-
 class ColorFormatter(logging.Formatter):
     """
-    Custom logging formatter that adds colors based on message tags.
-    Tags: [CREATE], [UPDATE], [DELETE], [INFO]
+    Custom logging formatter that adds colors and BOLD styling.
+    Updated with specific background colors for testing levels.
     """
+    def _highlight_values(self, text, return_color):
+        """Finds text in `backticks` and colors it white, then returns to return_color."""
+        if "`" not in text:
+            return text
+        # Replace `value` with ORANGE + value + return_color (to resume msg color)
+        return re.sub(r"`(.*?)`", f"{COLORS['VIBRANT_ORANGE']}\\1{return_color}", text)
+
     def format(self, record):
         # Use super() to get the standard formatted message
         msg = super().format(record)
-        # Handle LARGE tag: try to render big ASCII art via pyfiglet if installed
-        if "[LARGE]" in msg:
-            clean = msg.replace("[LARGE]", "").strip()
-            try:
-                from pyfiglet import Figlet
-                fig = Figlet()
-                rendered = fig.renderText(clean)
-                return f"{COLORS['ORANGE']}{rendered}{COLORS['RESET']}"
-            except Exception:
-                # Fallback: bold the message if pyfiglet isn't available
-                return f"{ANSI_BOLD}{COLORS['ORANGE']}{clean}{COLORS['RESET']}"
-
-        # Handle BOLD tag: apply ANSI bold wrapper
-        if "[BOLD]" in msg:
-            clean = msg.replace("[BOLD]", "").strip()
-            return f"{ANSI_BOLD}{clean}{COLORS['RESET']}"
-
+        
+        # Standard Tags
         if "[CREATE]" in msg:
-            return f"{COLORS['ORANGE']}{msg}{COLORS['RESET']}"
+            msg = self._highlight_values(msg, COLORS['ORANGE'])
+            return f"{COLORS['BOLD']}{COLORS['ORANGE']}{msg}{COLORS['RESET']}"
         elif "[UPDATE]" in msg:
-            return f"{COLORS['BLUE']}{msg}{COLORS['RESET']}"
+            msg = self._highlight_values(msg, COLORS['BLUE'])
+            return f"{COLORS['BOLD']}{COLORS['BLUE']}{msg}{COLORS['RESET']}"
         elif "[DELETE]" in msg:
-            return f"{COLORS['RED']}{msg}{COLORS['RESET']}"
+            msg = self._highlight_values(msg, COLORS['RED'])
+            return f"{COLORS['BOLD']}{COLORS['RED']}{msg}{COLORS['RESET']}"
         elif "[INFO]" in msg:
-            return f"{COLORS['GREEN']}{msg}{COLORS['RESET']}"
+            msg = self._highlight_values(msg, COLORS['GREEN'])
+            return f"{COLORS['BOLD']}{COLORS['GREEN']}{msg}{COLORS['RESET']}"
+        
+        # Testing tags with Requested Backgrounds
+        
+        elif "[TESTING1]" in msg:
+            # BG Green, Msg Sky Blue
+            tag_part = f"{COLORS['BG_BRIGHT_GREEN']}{COLORS['VIBRANT_ORANGE']}[TESTING1]{COLORS['RESET']}"
+            msg_content = msg.replace('[TESTING1]', '')
+            msg_part = f"{COLORS['BRIGHT_SKY']}{self._highlight_values(msg_content, COLORS['BRIGHT_SKY'])}{COLORS['RESET']}"
+            return f"{tag_part}{msg_part}"
+            
+        elif "[TESTING2]" in msg:
+            # BG Pink, Msg Lime Green
+            tag_part = f"{COLORS['BG_BRIGHT_PINK']}{COLORS['VIBRANT_ORANGE']}[TESTING2]{COLORS['RESET']}"
+            msg_content = msg.replace('[TESTING2]', '')
+            msg_part = f"{COLORS['BRIGHT_LIME']}{self._highlight_values(msg_content, COLORS['BRIGHT_LIME'])}{COLORS['RESET']}"
+            return f"{tag_part}{msg_part}"
+            
+        elif "[TESTING3]" in msg:
+            # BG Yellow, Msg Pink
+            tag_part = f"{COLORS['BG_BRIGHT_YELLOW']}{COLORS['VIBRANT_ORANGE']}[TESTING3]{COLORS['RESET']}"
+            msg_content = msg.replace('[TESTING3]', '')
+            msg_part = f"{COLORS['BRIGHT_PINK']}{self._highlight_values(msg_content, COLORS['BRIGHT_PINK'])}{COLORS['RESET']}"
+            return f"{tag_part}{msg_part}"
 
+        elif "[USERERROR]" in msg:
+            # BG Orange, Msg Bold Red
+            tag_part = f"{COLORS['BG_ORANGE']}{COLORS['BOLD']}[USERERROR]{COLORS['RESET']}"
+            msg_content = msg.replace('[USERERROR]', '')
+            msg_part = f"{COLORS['BOLD']}{COLORS['RED']}{self._highlight_values(msg_content, COLORS['RED'])}{COLORS['RESET']}"
+            return f"{tag_part}{msg_part}"
+        
         return msg
 
 def get_logger(name):
@@ -86,8 +122,8 @@ def get_logger(name):
 
 def _format_msg(msg, *args):
     if args and isinstance(msg, str) and "%" not in msg:
-        # If multiple args are passed but no %s in msg, join them like print()
-        return f"{msg} " + " ".join(str(a) for a in args), ()
+        # If multiple args are passed, wrap them in backticks to trigger WHITE color in formatter
+        return f"{msg} " + " ".join(f"`{a}`" for a in args), ()
     return msg, args
 
 def log_create(logger, msg, *args):
@@ -110,13 +146,22 @@ def log_info(logger, msg, *args):
     m, a = _format_msg(msg, *args)
     logger.info(f"[INFO] {m}", *a)
 
-def log_bold(logger, msg, *args):
-    """Logs a message with [BOLD] tag to render bold in ANSI-capable terminals."""
+def log_testing1(logger, msg, *args):
+    """Logs a testing event: Bright Green BG Tag + Bright Sky Blue Message."""
     m, a = _format_msg(msg, *args)
-    logger.info(f"[BOLD] {m}", *a)
+    logger.info(f"[TESTING1] {m}", *a)
 
-
-def log_large(logger, msg, *args):
-    """Logs a message with [LARGE] tag. If `pyfiglet` is installed, renders large ASCII art; otherwise falls back to bold."""
+def log_testing2(logger, msg, *args):
+    """Logs a testing event: Bright Pink BG Tag + Bright Lime Green Message."""
     m, a = _format_msg(msg, *args)
-    logger.info(f"[LARGE] {m}", *a)
+    logger.info(f"[TESTING2] {m}", *a)
+
+def log_testing3(logger, msg, *args):
+    """Logs a testing event: Bright Yellow BG Tag + Bright Pink Message."""
+    m, a = _format_msg(msg, *args)
+    logger.info(f"[TESTING3] {m}", *a)
+
+def log_usererror(logger, msg, *args):
+    """Logs a user error event with [USERERROR] tag: Bright Red BG Tag + Bold Red Message."""
+    m, a = _format_msg(msg, *args)
+    logger.info(f"[USERERROR] {m}", *a)
