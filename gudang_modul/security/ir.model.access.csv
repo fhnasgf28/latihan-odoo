@@ -1,0 +1,19 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gudang_kategori_user,gudang.kategori.produk user,model_gudang_kategori_produk,group_gudang_user,1,0,0,0
+access_gudang_kategori_manager,gudang.kategori.produk manager,model_gudang_kategori_produk,group_gudang_manager,1,1,1,1
+access_gudang_produk_user,gudang.produk user,model_gudang_produk,group_gudang_user,1,1,1,0
+access_gudang_produk_manager,gudang.produk manager,model_gudang_produk,group_gudang_manager,1,1,1,1
+access_gudang_lokasi_user,gudang.lokasi user,model_gudang_lokasi,group_gudang_user,1,0,0,0
+access_gudang_lokasi_manager,gudang.lokasi manager,model_gudang_lokasi,group_gudang_manager,1,1,1,1
+access_gudang_penerimaan_user,gudang.penerimaan user,model_gudang_penerimaan,group_gudang_user,1,1,1,0
+access_gudang_penerimaan_manager,gudang.penerimaan manager,model_gudang_penerimaan,group_gudang_manager,1,1,1,1
+access_gudang_penerimaan_line_user,gudang.penerimaan.line user,model_gudang_penerimaan_line,group_gudang_user,1,1,1,0
+access_gudang_penerimaan_line_manager,gudang.penerimaan.line manager,model_gudang_penerimaan_line,group_gudang_manager,1,1,1,1
+access_gudang_pengeluaran_user,gudang.pengeluaran user,model_gudang_pengeluaran,group_gudang_user,1,1,1,0
+access_gudang_pengeluaran_manager,gudang.pengeluaran manager,model_gudang_pengeluaran,group_gudang_manager,1,1,1,1
+access_gudang_pengeluaran_line_user,gudang.pengeluaran.line user,model_gudang_pengeluaran_line,group_gudang_user,1,1,1,0
+access_gudang_pengeluaran_line_manager,gudang.pengeluaran.line manager,model_gudang_pengeluaran_line,group_gudang_manager,1,1,1,1
+access_gudang_opname_user,gudang.opname user,model_gudang_opname,group_gudang_user,1,1,1,0
+access_gudang_opname_manager,gudang.opname manager,model_gudang_opname,group_gudang_manager,1,1,1,1
+access_gudang_opname_line_user,gudang.opname.line user,model_gudang_opname_line,group_gudang_user,1,1,1,0
+access_gudang_opname_line_manager,gudang.opname.line manager,model_gudang_opname_line,group_gudang_manager,1,1,1,1

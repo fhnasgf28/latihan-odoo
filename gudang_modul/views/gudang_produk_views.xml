@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════
+         VIEWS UNTUK: gudang.produk
+         ══════════════════════════════════════════════════ -->
+
+    <!-- LIST VIEW (Tree) -->
+    <record id="view_gudang_produk_list" model="ir.ui.view">
+        <field name="name">gudang.produk.list</field>
+        <field name="model">gudang.produk</field>
+        <field name="arch" type="xml">
+            <list string="Daftar Produk" decoration-danger="status_stok == 'habis'"
+                  decoration-warning="status_stok == 'menipis'"
+                  decoration-success="status_stok == 'aman'">
+                <field name="kode_produk" optional="show"/>
+                <field name="name"/>
+                <field name="kategori_id" optional="show"/>
+                <field name="satuan"/>
+                <field name="stok_tersedia" string="Stok"/>
+                <field name="stok_minimum" optional="hide"/>
+                <field name="harga_beli" optional="hide" widget="monetary"/>
+                <field name="harga_jual" optional="show" widget="monetary"/>
+                <field name="status_stok" widget="badge"
+                       decoration-danger="status_stok == 'habis'"
+                       decoration-warning="status_stok == 'menipis'"
+                       decoration-success="status_stok == 'aman'"
+                       decoration-info="status_stok == 'berlebih'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_gudang_produk_form" model="ir.ui.view">
+        <field name="name">gudang.produk.form</field>
+        <field name="model">gudang.produk</field>
+        <field name="arch" type="xml">
+            <form string="Produk Gudang">
+                <!-- Status bar di atas form (untuk status stok) -->
+                <header>
+                    <field name="status_stok" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <!-- Foto produk di kanan atas -->
+                    <field name="gambar" widget="image" class="oe_avatar" options="{'preview_image': 'gambar'}"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nama Produk..."/></h1>
+                        <h2><field name="kode_produk" readonly="1"/></h2>
+                    </div>
+
+                    <group>
+                        <group string="Informasi Produk">
+                            <field name="barcode"/>
+                            <field name="kategori_id"/>
+                            <field name="satuan"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Harga">
+                            <field name="harga_beli" widget="monetary"/>
+                            <field name="harga_jual" widget="monetary"/>
+                        </group>
+                    </group>
+
+                    <group string="Konfigurasi Stok">
+                        <group>
+                            <field name="stok_tersedia" readonly="1"/>
+                            <field name="stok_minimum"/>
+                        </group>
+                        <group>
+                            <field name="stok_maksimum"/>
+                        </group>
+                    </group>
+
+                    <field name="deskripsi" placeholder="Deskripsi produk..."/>
+
+                    <!-- Tab untuk riwayat transaksi -->
+                    <notebook>
+                        <page string="📥 Riwayat Penerimaan">
+                            <field name="penerimaan_line_ids" readonly="1">
+                                <list>
+                                    <field name="penerimaan_id"/>
+                                    <field name="tanggal" string="Tanggal"/>
+                                    <field name="qty_diterima"/>
+                                    <field name="satuan"/>
+                                    <field name="harga_satuan" widget="monetary"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="📤 Riwayat Pengeluaran">
+                            <field name="pengeluaran_line_ids" readonly="1">
+                                <list>
+                                    <field name="pengeluaran_id"/>
+                                    <field name="tanggal" string="Tanggal"/>
+                                    <field name="qty_keluar"/>
+                                    <field name="satuan"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <!-- Chatter (log aktivitas) -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- KANBAN VIEW -->
+    <record id="view_gudang_produk_kanban" model="ir.ui.view">
+        <field name="name">gudang.produk.kanban</field>
+        <field name="model">gudang.produk</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status_stok">
+                <field name="name"/>
+                <field name="kode_produk"/>
+                <field name="stok_tersedia"/>
+                <field name="satuan"/>
+                <field name="status_stok"/>
+                <field name="gambar"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="gambar" widget="image" class="o_kanban_image" style="width:60px;height:60px;"/>
+                        <div class="oe_kanban_details">
+                            <strong><field name="name"/></strong>
+                            <div><field name="kode_produk"/></div>
+                            <div>Stok: <field name="stok_tersedia"/> <field name="satuan"/></div>
+                            <field name="status_stok" widget="badge"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <!-- <record id="view_gudang_produk_search" model="ir.ui.view">
+        <field name="name">gudang.produk.search</field>
+        <field name="model">gudang.produk</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Produk"/>
+                <field name="kategori_id"/>
+                <field name="barcode"/> -->
+                <!-- Filter cepat -->
+                <!-- <filter string="Stok Habis"    name="stok_habis"    domain="[('status_stok','=','habis')]"/>
+                <filter string="Stok Menipis"  name="stok_menipis"  domain="[('status_stok','=','menipis')]"/>
+                <filter string="Stok Aman"     name="stok_aman"     domain="[('status_stok','=','aman')]"/>
+                <separator/> -->
+                <!-- <filter string="Produk Aktif"  name="active"        domain="[('active','=',True)]"/> -->
+                <!-- Group By -->
+                <!-- <group expand="0" string="Group By">
+                    <filter string="Kategori"    name="by_kategori"  context="{'group_by': 'kategori_id'}"/>
+                    <filter string="Satuan"      name="by_satuan"    context="{'group_by': 'satuan'}"/>
+                    <filter string="Status Stok" name="by_status"    context="{'group_by': 'status_stok'}"/>
+                </group>
+            </search>
+        </field>
+    </record> -->
+
+    <!-- ACTION WINDOW -->
+    <record id="action_gudang_produk" model="ir.actions.act_window">
+        <field name="name">Master Produk</field>
+        <field name="res_model">gudang.produk</field>
+        <field name="view_mode">list,kanban,form</field>
+        <!-- <field name="search_view_id" ref="view_gudang_produk_search"/> -->
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada produk. Tambahkan produk pertama!
+            </p>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         VIEWS UNTUK: gudang.kategori.produk
+         ══════════════════════════════════════════════════ -->
+    <record id="view_gudang_kategori_list" model="ir.ui.view">
+        <field name="name">gudang.kategori.produk.list</field>
+        <field name="model">gudang.kategori.produk</field>
+        <field name="arch" type="xml">
+            <list string="Kategori Produk">
+                <field name="complete_name"/>
+                <field name="parent_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_gudang_kategori_form" model="ir.ui.view">
+        <field name="name">gudang.kategori.produk.form</field>
+        <field name="model">gudang.kategori.produk</field>
+        <field name="arch" type="xml">
+            <form string="Kategori Produk">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="parent_id"/>
+                        <field name="complete_name" readonly="1"/>
+                    </group>
+                    <field name="child_ids">
+                        <list>
+                            <field name="name"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_gudang_kategori" model="ir.actions.act_window">
+        <field name="name">Kategori Produk</field>
+        <field name="res_model">gudang.kategori.produk</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

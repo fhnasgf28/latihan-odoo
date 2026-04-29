@@ -1,37 +1,21 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-        // Launch Odoo using the conda env Python interpreter (fixed)
         {
-            "name": "Odoo: Launch odoo-bin (conda interpreter)",
-            "type": "python",
+            "name": "Odoo: Run Without Debugging",
+            "type": "debugpy",
             "request": "launch",
-            // <-- program must be the odoo-bin script, NOT the python binary
-            "program": "/home/fhnasgf/Documents/odoo19/odoo-bin",
-            "args": [
-                "-c",
-                "/home/fhnasgf/Documents/odoo19/conf/odoo19.conf",
-                "-d",
-                "odoo-new",
-                "--log-level=debug",
-                "--log-handler=:DEBUG"
-            ],
-            "cwd": "${workspaceFolder}",
+            "program": "/home/fhnasgf/Downloads/odoo19_conf/odoo19/odoo-bin",
             "console": "integratedTerminal",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
-            },
-            "justMyCode": false,
-            // explicitly tell debugger which python interpreter to use
-            "pythonPath": "/home/fhnasgf/miniconda3/envs/odoo19/bin/python3",
-            "python": "/home/fhnasgf/miniconda3/envs/odoo19/bin/python3"
-        },
-
-        // Attach ke proses Odoo yang sudah dijalankan dengan debugpy (mis. python -m debugpy --listen 5678 --wait-for-client odoo-bin ...)
-        
+            // "preLaunchTask": "stop-odoo19",
+            // "postDebugTask": "start-odoo19",
+            "args": [
+                "-c", "/home/fhnasgf/Downloads/odoo19_conf/conf/odoo19.conf",
+                // "-d", "SPE_dev",
+                // "-u", "crm_ktt_leads2",
+                // "--dev", "xml"
+            ],
+            "python": "/home/fhnasgf/.pyenv/versions/django/bin/python"
+        }
     ]
 }

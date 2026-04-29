@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- security Groups -->
+     <record id='module_category_gudang' model='ir.module.category'>
+        <field name='name'>Gudang Modul</field>
+        <field name='description'>Sistem Inventory Gudang</field>
+        <field name='sequence'>10</field>
+    </record>
+
+    <record id='group_gudang_user' model='res.groups'>
+        <field name='name'>Gudang User</field>
+        <field name='implied_ids' eval="[(4, ref('base.group_user'))]"/>
+        <!-- <field name='comment'>Dapat membuat dan memproses transaksi penerimaan dan pengeluaran</field> -->
+    </record>
+
+    <!-- Group 2: Manager (akses penuh) -->
+    <record id="group_gudang_manager" model="res.groups">
+        <field name="name">Manager Gudang</field>
+        <field name="implied_ids" eval="[(4, ref('group_gudang_user'))]"/>
+        <!-- <field name="comment">Akses penuh termasuk konfigurasi, stok opname, dan laporan.</field> -->
+    </record>
+</odoo>

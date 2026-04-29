@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════
+         MENU STRUCTURE
+         
+         Level 1: Gudang (top menu / aplikasi)
+         Level 2: Sub-menu utama
+         Level 3: Item menu
+         ══════════════════════════════════════════════════════════════ -->
+
+    <!-- ── LEVEL 1: Root Menu Aplikasi ────────────────────────────── -->
+    <menuitem id="menu_gudang_root"
+              name="🏭 Gudang"
+              sequence="50"
+              groups="gudang_modul.group_gudang_user"/>
+
+    <!-- ── LEVEL 2: Transaksi ─────────────────────────────────────── -->
+    <menuitem id="menu_gudang_transaksi"
+              name="📦 Transaksi"
+              parent="menu_gudang_root"
+              sequence="10"
+              groups="gudang_modul.group_gudang_user"/>
+
+    <menuitem id="menu_gudang_penerimaan"
+              name="📥 Penerimaan Barang"
+              parent="menu_gudang_transaksi"
+              action="action_gudang_penerimaan"
+              sequence="10"/>
+
+    <menuitem id="menu_gudang_pengeluaran"
+              name="📤 Pengeluaran Barang"
+              parent="menu_gudang_transaksi"
+              action="action_gudang_pengeluaran"
+              sequence="20"/>
+
+    <!-- ── LEVEL 2: Inventori ─────────────────────────────────────── -->
+    <menuitem id="menu_gudang_inventori"
+              name="📊 Inventori"
+              parent="menu_gudang_root"
+              sequence="20"
+              groups="gudang_modul.group_gudang_user"/>
+
+    <menuitem id="menu_gudang_produk"
+              name="🏷️ Master Produk"
+              parent="menu_gudang_inventori"
+              action="action_gudang_produk"
+              sequence="10"/>
+
+    <menuitem id="menu_gudang_lokasi"
+              name="📍 Lokasi Gudang"
+              parent="menu_gudang_inventori"
+              action="action_gudang_lokasi"
+              sequence="20"
+              groups="gudang_modul.group_gudang_manager"/>
+
+    <menuitem id="menu_gudang_opname"
+              name="🔍 Stok Opname"
+              parent="menu_gudang_inventori"
+              action="action_gudang_opname"
+              sequence="30"
+              groups="gudang_modul.group_gudang_manager"/>
+
+    <!-- ── LEVEL 2: Konfigurasi ───────────────────────────────────── -->
+    <menuitem id="menu_gudang_config"
+              name="⚙️ Konfigurasi"
+              parent="menu_gudang_root"
+              sequence="99"
+              groups="gudang_modul.group_gudang_manager"/>
+
+    <menuitem id="menu_gudang_kategori"
+              name="📁 Kategori Produk"
+              parent="menu_gudang_config"
+              action="action_gudang_kategori"
+              sequence="10"/>
+
+</odoo>

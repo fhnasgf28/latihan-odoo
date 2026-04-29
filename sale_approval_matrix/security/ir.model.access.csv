@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_approval_matrix,sale.approval.matrix,model_sale_approval_matrix,sales_team.group_sale_manager,1,1,1,1
+access_sale_approval_matrix_user,sale.approval.matrix,model_sale_approval_matrix,sales_team.group_sale_salesman,1,0,0,0
+access_sale_order_rejection_wizard,sale.order.rejection.wizard,model_sale_order_rejection_wizard,base.group_user,1,1,1,1
+access_res_users_delegation,res.users.delegation,model_res_users_delegation,base.group_user,1,1,1,1
+access_sales_config_settings_manager,sales.config.settings,model_sales_config_settings,sales_team.group_sale_manager,1,1,1,1
+access_sales_config_settings_user,sales.config.settings,model_sales_config_settings,base.group_user,1,0,0,0

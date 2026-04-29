@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_gudang_lokasi_list" model="ir.ui.view">
+        <field name="name">gudang.lokasi.list</field>
+        <field name="model">gudang.lokasi</field>
+        <field name="arch" type="xml">
+            <list string="Lokasi Gudang">
+                <field name="complete_name"/>
+                <field name="tipe_lokasi"/>
+                <field name="parent_id"/>
+                <field name="total_produk"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_gudang_lokasi_form" model="ir.ui.view">
+        <field name="name">gudang.lokasi.form</field>
+        <field name="model">gudang.lokasi</field>
+        <field name="arch" type="xml">
+            <form string="Lokasi Gudang">
+                <sheet>
+                    <group>
+                        <group string="Identitas">
+                            <field name="name"/>
+                            <field name="complete_name" readonly="1"/>
+                            <field name="tipe_lokasi"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Hierarki">
+                            <field name="parent_id"/>
+                            <field name="total_produk" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="keterangan"/>
+                    <field name="child_ids" string="Sub-Lokasi">
+                        <list>
+                            <field name="name"/>
+                            <field name="tipe_lokasi"/>
+                            <field name="active"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_gudang_lokasi" model="ir.actions.act_window">
+        <field name="name">Lokasi Gudang</field>
+        <field name="res_model">gudang.lokasi</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

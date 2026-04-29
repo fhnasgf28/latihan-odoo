@@ -31,10 +31,10 @@ class ColorFormatter(logging.Formatter):
     """
     def _highlight_values(self, text, return_color):
         """Finds text in `backticks` and colors it white, then returns to return_color."""
-        if "`" not in text:
+        if "~" not in text:
             return text
-        # Replace `value` with ORANGE + value + return_color (to resume msg color)
-        return re.sub(r"`(.*?)`", f"{COLORS['VIBRANT_ORANGE']}\\1{return_color}", text)
+        # Replace ~value~ with ORANGE + value + return_color (to resume msg color)
+        return re.sub(r"~(.*?)~", f"{COLORS['VIBRANT_ORANGE']}\\1{return_color}", text)
 
     def format(self, record):
         # Use super() to get the standard formatted message
@@ -123,7 +123,7 @@ def get_logger(name):
 def _format_msg(msg, *args):
     if args and isinstance(msg, str) and "%" not in msg:
         # If multiple args are passed, wrap them in backticks to trigger WHITE color in formatter
-        return f"{msg} " + " ".join(f"`{a}`" for a in args), ()
+        return f"{msg} " + " ".join(f"~{a}~" for a in args), ()
     return msg, args
 
 def log_create(logger, msg, *args):

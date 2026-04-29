@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="seq_gudang_opname" model="ir.sequence">
+        <field name="name">Sequence Stok Opname</field>
+        <field name="code">gudang.opname</field>
+        <field name="prefix">OPN/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <record id="seq_gudang_penerimaan" model="ir.sequence">
+        <field name="name">Sequence Penerimaan</field>
+        <field name="code">gudang.penerimaan</field>
+        <field name="prefix">PNM/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <record id="seq_gudang_pengeluaran" model="ir.sequence">
+        <field name="name">Sequence Pengeluaran Barang</field>
+        <field name="code">gudang.pengeluaran</field>
+        <field name="prefix">KLR/%(year)s/%(month)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
+</odoo>

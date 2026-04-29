@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_approval" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add Approve button to the header -->
+            <xpath expr="//header" position="inside">
+                <field name="can_approve" invisible="1"/>
+                <button name="action_approve" 
+                        string="Approve" 
+                        type="object" 
+                        class="btn-success" 
+                        groups="sale_approval_matrix.group_sale_order_approver"
+                        invisible="state != 'to_approve' or can_approve == False"/>
+                <button name="action_reject" 
+                        string="Reject" 
+                        type="object" 
+                        class="btn-danger" 
+                        groups="sale_approval_matrix.group_sale_order_approver"
+                        invisible="state != 'to_approve' or can_approve == False"/>
+                <button name="action_draft"
+                        string="Set to Draft"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'rejected'"/>
+                <button name="action_reset_approval"
+                        string="Reset Approval"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'to_approve'"/>
+            </xpath>
+
+            <!-- Show state in statusbar -->
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,sent,to_approve,rejected,sale</attribute>
+            </xpath>
+
+            <!-- Add approval info -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Approval Matrix" invisible="state == 'draft' and is_approved == False">
+                    <group>
+                        <group>
+                            <field name="approval_matrix_id" readonly="1"/>
+                            <field name="approver_ids" widget="many2many_tags"/>
+                            <field name="pending_approver_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="is_approved" readonly="1"/>
+                            <field name="minimum_approval_count" readonly="1"/>
+                            <field name="approval_count" readonly="1"/>
+                            <field name="approved_user_ids" widget="many2many_tags"/>
+                            <field name="approved_by_id" readonly="1" invisible="not is_approved"/>
+                            <field name="approval_date" readonly="1" invisible="not is_approved"/>
+                            <field name="rejection_reason" readonly="1" invisible="state != 'rejected'"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search View Inheritance for Filter -->
+    <record id="view_sales_order_filter_inherit_approval" model="ir.ui.view">
+        <field name="name">sale.order.search.inherit.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <filter string="Rejected Orders" name="rejected_orders" domain="[('state', '=', 'rejected')]"/>
+                <filter string="Waiting Approval" name="to_approve_orders" domain="[('state', '=', 'to_approve')]"/>
+                <filter string="Waiting My Approval" name="waiting_my_approval" 
+                        domain="[('state', '=', 'to_approve'), ('pending_approver_ids', 'in', uid)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action for Waiting Approval Dashboard -->
+    <record id="action_orders_to_approve" model="ir.actions.act_window">
+        <field name="name">Waiting My Approval</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+        <field name="context">{'search_default_waiting_my_approval': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No sales orders waiting for your approval!
+            </p>
+            <p>
+                When a sales order requires your confirmation, it will appear here.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Approval Requests -->
+    <!-- <menuitem id="menu_sale_order_to_approve"
+              name="Approval Requests"
+              action="action_orders_to_approve"
+              parent="sale.menu_sale_quotations"
+              sequence="20"
+              groups="sale_approval_matrix.group_sale_order_approver"/> -->
+
+    <record id="view_quotation_tree_inherit_approval" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-danger">state == 'rejected'</attribute>
+                <attribute name="decoration-warning">state == 'to_approve'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_tree_inherit_approval" model="ir.ui.view">
+        <field name="name">sale.order.order.tree.inherit.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-danger">state == 'rejected'</attribute>
+                <attribute name="decoration-warning">state == 'to_approve'</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

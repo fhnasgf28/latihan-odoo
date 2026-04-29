@@ -1,1 +1,8 @@
 /xlsx_syncronize/odoo_spreedsheet.json
+
+# Python
+*.pyc
+*.cpy
+__pycache__/
+*.py[cod]
+*$py.class

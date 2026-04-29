@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════
+         VIEWS: gudang.penerimaan
+         ══════════════════════════════════════════════════ -->
+
+    <record id="view_gudang_penerimaan_list" model="ir.ui.view">
+        <field name="name">gudang.penerimaan.list</field>
+        <field name="model">gudang.penerimaan</field>
+        <field name="arch" type="xml">
+            <list string="Penerimaan Barang" decoration-muted="state == 'cancel'"
+                  decoration-success="state == 'done'">
+                <field name="nomor"/>
+                <field name="tanggal"/>
+                <field name="nama_supplier"/>
+                <field name="no_surat_jalan"/>
+                <field name="lokasi_tujuan_id"/>
+                <field name="total_item"/>
+                <field name="total_qty"/>
+                <field name="total_nilai" widget="monetary" optional="show"/>
+                <field name="petugas_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'konfirmasi'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_gudang_penerimaan_form" model="ir.ui.view">
+        <field name="name">gudang.penerimaan.form</field>
+        <field name="model">gudang.penerimaan</field>
+        <field name="arch" type="xml">
+            <form string="Penerimaan Barang">
+                <header>
+                    <!-- Tombol aksi berdasarkan state -->
+                    <button name="action_konfirmasi" string="✅ Konfirmasi"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_validasi" string="✔️ Validasi (Selesai)"
+                            type="object" class="btn-success"
+                            invisible="state != 'konfirmasi'"/>
+                    <button name="action_cancel" string="❌ Batalkan"
+                            type="object"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_reset_draft" string="↩️ Reset ke Draft"
+                            type="object"
+                            invisible="state != 'cancel'"/>
+
+                    <!-- Status bar -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,konfirmasi,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="nomor" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Informasi Penerimaan">
+                            <field name="tanggal" readonly="state != 'draft'"/>
+                            <field name="nama_supplier" readonly="state != 'draft'"/>
+                            <field name="no_surat_jalan" readonly="state != 'draft'"/>
+                            <field name="petugas_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Tujuan">
+                            <field name="lokasi_tujuan_id" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <!-- Tabel Detail Barang -->
+                    <field name="line_ids" readonly="state != 'draft'">
+                        <list editable="bottom">
+                            <field name="produk_id" required="1"/>
+                            <field name="satuan" optional="show"/>
+                            <field name="stok_sekarang" optional="show" string="Stok Skrg"/>
+                            <field name="qty_pesan" optional="show"/>
+                            <field name="qty_diterima" required="1"/>
+                            <field name="harga_satuan" optional="show" widget="monetary"/>
+                            <field name="subtotal" optional="show" widget="monetary"/>
+                            <field name="expired_date" optional="hide"/>
+                            <field name="keterangan" optional="hide"/>
+                        </list>
+                    </field>
+
+                    <!-- Totals -->
+                    <group class="oe_subtotal_footer">
+                        <field name="total_item" readonly="1"/>
+                        <field name="total_qty" readonly="1"/>
+                        <field name="total_nilai" readonly="1" widget="monetary" class="oe_subtotal_footer_separator"/>
+                    </group>
+
+                    <field name="catatan" placeholder="Catatan tambahan..." readonly="state == 'done'"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- <record id="view_gudang_penerimaan_search" model="ir.ui.view">
+        <field name="name">gudang.penerimaan.search</field>
+        <field name="model">gudang.penerimaan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nomor"/>
+                <field name="nama_supplier"/>
+                <field name="no_surat_jalan"/>
+                <filter string="Draft"       name="draft"       domain="[('state','=','draft')]"/>
+                <filter string="Dikonfirmasi" name="konfirmasi"  domain="[('state','=','konfirmasi')]"/>
+                <filter string="Selesai"     name="done"        domain="[('state','=','done')]"/>
+                <filter string="Bulan Ini"   name="bulan_ini"   domain="[('tanggal','&gt;=', (context_today()).strftime('%Y-%m-01'))]"/>
+                <group string="Group By">
+                    <filter string="Status"   name="by_state"    context="{'group_by': 'state'}"/>
+                    <filter string="Supplier" name="by_supplier" context="{'group_by': 'nama_supplier'}"/>
+                    <filter string="Lokasi"   name="by_lokasi"   context="{'group_by': 'lokasi_tujuan_id'}"/>
+                    <filter string="Bulan"    name="by_bulan"    context="{'group_by': 'tanggal:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record> -->
+
+    <record id="action_gudang_penerimaan" model="ir.actions.act_window">
+        <field name="name">Penerimaan Barang</field>
+        <field name="res_model">gudang.penerimaan</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="search_view_id" ref="view_gudang_penerimaan_search"/> -->
+        <field name="context">{'search_default_done': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat dokumen penerimaan barang pertama!
+            </p>
+        </field>
+    </record>
+
+</odoo>
