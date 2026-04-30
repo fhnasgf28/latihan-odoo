@@ -174,5 +174,12 @@ class GudangPenerimaanLine(models.Model):
 
     @api.depends('qty_diterima', 'harga_satuan')
     def _compute_subtotal(self):
-        pass
+        for rec in self:
+            rec.subtotal = rec.qty_diterima * rec.harga_satuan
+    
+    @api.onchange('produk_id')
+    def _onchange_produk_id(self):
+        if self.produk_id:
+            self.harga_satuan = self.produk_id.harga_beli
+            log_testing1(logger, f"onchange produk_id: mengisi harga_satuan ~{self.harga_satuan}~ untuk produk ~{self.produk_id.name}~")
 
