@@ -181,5 +181,4 @@ class GudangPenerimaanLine(models.Model):
     def _onchange_produk_id(self):
         if self.produk_id:
             self.harga_satuan = self.produk_id.harga_beli
-            log_testing1(logger, f"onchange produk_id: mengisi harga_satuan ~{self.harga_satuan}~ untuk produk ~{self.produk_id.name}~")
 

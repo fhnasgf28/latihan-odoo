@@ -33,10 +33,8 @@ class GudangOpname(models.Model):
         for rec in self:
             selisih_plus = sum(l.selisih_qty for l in rec.line_ids if l.selisih_qty > 0)
             selisih_minus = sum(l.selisih_qty for l in rec.line_ids if l.selisih_qty < 0)
-            log_testing1(logger, f"menghitung total selisih untuk opname ~{rec.nomor}~: +{selisih_plus} / {selisih_minus}")
             rec.total_selisih_plus = selisih_plus
             rec.total_selisih_minus = abs(selisih_minus)
-            log_testing2(logger, f"total selisih untuk opname ~{rec.nomor}~: +{rec.total_selisih_plus} / {rec.total_selisih_minus}")
             rec.ada_selisih = bool(selisih_plus or selisih_minus)
     
     @api.model_create_multi
@@ -48,14 +46,12 @@ class GudangOpname(models.Model):
 
     def action_mulai_hitung(self):
         if not self.line_ids:
-            log_usererror(logger, f"gagal mulai hitung opname ~{self.nomor}~: tidak ada detail produk")
             raise UserError("Tidak bisa mulai hitung opname tanpa detail produk!")
         self.state = 'progress'
     
     def action_load_produk(self):
         for rec in self:
             if rec.state not in ('draft', 'progress'):
-                log_usererror(logger, f"gagal load produk untuk opname ~{rec.nomor}~: status harus draft atau progress")
                 raise UserError("Hanya bisa load produk untuk opname yang berstatus Draft atau Sedang Dihitung!")
         semua_produk = self.env['gudang.produk'].search([('active', '=', True)])
         existing_produk_ids = rec.line_ids.mapped('produk_id').ids
@@ -70,19 +66,15 @@ class GudangOpname(models.Model):
                 })
         if new_lines:
             self.env['gudang.opname.line'].create(new_lines)
-            log_testing1(logger, f"memuat {len(new_lines)} produk ke opname ~{rec.nomor}~")
     
     def action_validasi(self):
         for rec in self:
             if rec.state != 'progress':
-                log_usererror(logger, f"gagal validasi opname ~{rec.nomor}~: status harus progress")
                 raise UserError("Hanya bisa validasi opname yang berstatus Progress!")
             lines_dengan_selisih = rec.line_ids.filtered(lambda l: l.selisih_qty != 0)
             if lines_dengan_selisih:
-                log_usererror(logger, f"gagal validasi opname ~{rec.nomor}~: masih ada {len(lines_dengan_selisih)} baris dengan selisih")
                 lines_plus = lines_dengan_selisih.filtered(lambda l: l.selisih_qty > 0)
                 if lines_plus:
-                    log_usererror(logger, f"baris dengan selisih lebih (+) pada opname ~{rec.nomor}~: {[l.id for l in lines_plus]}")
                     lokasi_adj = self.env['gudang.lokasi'].search([('tipe_lokasi', '=', 'virtual')], limit=1)
                     penerimaan = self.env['gudang.penerimaan'].create({
                         'nama_suplier': f'adjusment opname {rec.nomor}',
@@ -94,13 +86,11 @@ class GudangOpname(models.Model):
                         }) for l in lines_plus],
                     })
                     penerimaan.action_konfirmasi()
-                    log_testing1(logger, f"membuat penerimaan untuk selisih lebih (+) pada opname ~{rec.nomor}~: {penerimaan.id}")
                     penerimaan.action_validasi()
                 
                 #buat satu dokumen pengeluaran untuk semua selisih kurang (-)
                 lines_minus = lines_dengan_selisih.filtered(lambda l: l.selisih_qty < 0)
                 if lines_minus:
-                    log_usererror(logger, f"baris dengan selisih kurang (-) pada opname ~{rec.nomor}~: {[l.id for l in lines_minus]}")
                     lokasi_adj = self.env['gudang.lokasi'].search([], limit=1)
                     pengeluaran = self.env['gudang.pengeluaran'].create({
                         'nama_customer': f'adjusment opname {rec.nomor}',
@@ -112,7 +102,6 @@ class GudangOpname(models.Model):
                         }) for l in lines_minus],
                     })
                     pengeluaran.action_konfirmasi()
-                    log_testing1(logger, f"membuat pengeluaran untuk selisih kurang (-) pada opname ~{rec.nomor}~: {pengeluaran.id}")
                     pengeluaran.action_validasi()
             rec.state = 'done'
 
@@ -146,5 +135,12 @@ class GudangOpnameLine(models.Model):
 
     @api.depends('qty_sistem', 'qty_fisik')
     def _compute_selisih(self):
-        pass
+        for rec in self:
+            rec.selisih_qty = rec.qty_fisik - rec.qty_sistem
+            if rec.selisih_qty == 0:
+                rec.status_selisih = 'sesuai'
+            elif rec.selisih_qty > 0:
+                rec.status_selisih = 'lebih'
+            else:                
+                rec.status_selisih = 'kurang'
 
