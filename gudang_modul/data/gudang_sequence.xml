@@ -25,4 +25,12 @@
         <field name="number_increment">1</field>
     </record>
 
+    <record id="seq_gudang_produk" model="ir.sequence">
+        <field name="name">Sequence Kode Produk</field>
+        <field name="code">gudang.produk</field>
+        <field name="prefix">PRD/</field>
+        <field name="padding">5</field>
+        <field name="number_increment">1</field>
+    </record>
+
 </odoo>

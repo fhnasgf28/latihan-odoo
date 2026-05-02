@@ -137,10 +137,14 @@ class GudangOpnameLine(models.Model):
     def _compute_selisih(self):
         for rec in self:
             rec.selisih_qty = rec.qty_fisik - rec.qty_sistem
+            log_testing1(logger, f"menghitung selisih untuk produk ~{rec.produk_id.name}~: sistem={rec.qty_sistem}, fisik={rec.qty_fisik}, selisih={rec.selisih_qty}")
             if rec.selisih_qty == 0:
                 rec.status_selisih = 'sesuai'
+                log_testing2(logger, f"status selisih untuk produk ~{rec.produk_id.name}~: SESUAI")
             elif rec.selisih_qty > 0:
                 rec.status_selisih = 'lebih'
+                log_testing3(logger, f"status selisih untuk produk ~{rec.produk_id.name}~: LEBIH")
             else:                
                 rec.status_selisih = 'kurang'
+                log_testing3(logger, f"status selisih untuk produk ~{rec.produk_id.name}~: KURANG")
 

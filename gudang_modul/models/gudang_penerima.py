@@ -181,4 +181,11 @@ class GudangPenerimaanLine(models.Model):
     def _onchange_produk_id(self):
         if self.produk_id:
             self.harga_satuan = self.produk_id.harga_beli
+    
+    @api.constrains('qty_diterima')
+    def _check_qty_diterima(self):
+        for rec in self:
+            if rec.qty_diterima <= 0:
+                log_usererror(logger, f"gagal menyimpan detail penerimaan untuk produk ~{rec.produk_id.name}~: qty diterima harus lebih dari 0")
+                raise ValidationError("Qty diterima harus lebih dari 0.")
 

@@ -75,9 +75,9 @@
                               decoration-muted="status_selisih == 'sesuai'">
                             <field name="produk_id" required="1"/>
                             <field name="satuan" optional="show"/>
-                            <field name="qty_sistem" readonly="1" string="Sistem"/>
+                            <field name="qty_sistem" string="Sistem"/>
                             <field name="qty_fisik" string="Fisik (Input)"/>
-                            <field name="selisih_qty" readonly="1" string="Selisih"/>
+                            <field name="selisih_qty" string="Selisih"/>
                             <field name="status_selisih" widget="badge"
                                    decoration-danger="status_selisih == 'kurang'"
                                    decoration-success="status_selisih == 'lebih'"

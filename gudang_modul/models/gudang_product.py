@@ -81,6 +81,26 @@ class GudangProduct(models.Model):
                 rec.status_stok = 'berlebih'
             else:
                 rec.status_stok = 'aman'
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('kode_produk', 'New') == 'New':
+                vals['kode_produk'] = self.env['ir.sequence'].next_by_code('gudang.produk') or 'New'
+        return super().create(vals_list)
+
+    def name_get(self):
+        result = []
+        for rec in self:
+            name = f"[{rec.kode_produk}] {rec.name}"
+            result.append((rec.id, name))
+        return result
+
+    @api.constrains('stok_minimum', 'stok_maksimum')
+    def _check_stok_limits(self):
+        for rec in self:
+            if rec.stok_maksimum > 0 and rec.stok_maksimum < rec.stok_minimum:
+                raise ValidationError("Stok maksimum harus lebih besar atau sama dengan stok minimum.")
 
 class GudangKategoriProduk(models.Model):
     """Sub-model kategori produk"""

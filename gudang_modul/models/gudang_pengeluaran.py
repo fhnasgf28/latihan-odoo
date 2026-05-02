@@ -96,4 +96,20 @@ class GudangPengeluaranLine(models.Model):
 
     @api.depends('qty_keluar', 'harga_satuan')
     def _compute_subtotal(self):
-        pass
+        for rec in self:
+            rec.subtotal = rec.qty_keluar * rec.harga_satuan
+    
+    @api.onchange('produk_id')
+    def _onchange_produk_id(self):
+        if self.produk_id:
+            self.harga_satuan = self.produk_id.harga_jual
+        
+    @api.constrains('qty_keluar')
+    def _check_qty_keluar(self):
+        for rec in self:
+            if rec.qty_keluar <= 0:
+                log_usererror(logger, f"gagal menyimpan detail pengeluaran untuk produk ~{rec.produk_id.name}~: qty keluar harus lebih dari 0")
+                raise ValidationError("Qty keluar harus lebih dari 0.")
+            if rec.qty_keluar > rec.stok_tersedia:
+                log_usererror(logger, f"gagal menyimpan detail pengeluaran untuk produk ~{rec.produk_id.name}~: qty keluar ({rec.qty_keluar}) melebihi stok tersedia ({rec.stok_tersedia})")
+                raise ValidationError(f"Qty keluar ({rec.qty_keluar}) tidak boleh melebihi stok tersedia ({rec.stok_tersedia}).")
