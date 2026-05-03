@@ -59,6 +59,14 @@
               action="action_gudang_opname"
               sequence="30"
               groups="gudang_modul.group_gudang_manager"/>
+          
+     <!-- Tambahkan di bawah menu Stok Opname -->
+     <menuitem id="menu_gudang_lot"
+               name="🏷️ Lot / Batch"
+               parent="menu_gudang_inventori"
+               action="action_gudang_lot"
+               sequence="25"
+               />    
 
     <!-- ── LEVEL 2: Konfigurasi ───────────────────────────────────── -->
     <menuitem id="menu_gudang_config"

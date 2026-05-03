@@ -35,6 +35,7 @@
         'views/gudang_penerimaan_views.xml',
         'views/gudang_pengeluaran_views.xml',
         'views/gudang_opname_views.xml',
+        'views/gudang_lot_views.xml',
         'views/gudang_menu.xml',
     ],
     'installable': True,

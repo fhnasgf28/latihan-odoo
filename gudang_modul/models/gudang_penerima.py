@@ -148,7 +148,7 @@ class GudangPenerimaanLine(models.Model):
         string='Produk',
         required=True,
     )
-
+    lot_id = fields.Many2one('gudang.lot', string='Lot/Batch', domain="[('produk_id', '=', produk_id), ('state', '!=', 'recall')]")
     # Related field: ambil data dari produk terkait
     satuan = fields.Selection(related='produk_id.satuan', string='Satuan', readonly=True)
     stok_sekarang = fields.Float(related='produk_id.stok_tersedia', string='Stok Saat Ini', readonly=True)

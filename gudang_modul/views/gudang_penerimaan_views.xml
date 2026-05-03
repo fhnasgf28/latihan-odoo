@@ -76,6 +76,7 @@
                             <field name="stok_sekarang" optional="show" string="Stok Skrg"/>
                             <field name="qty_pesan" optional="show"/>
                             <field name="qty_diterima" required="1"/>
+                            <field name="lot_id" optional="show" domain="[('produk_id', '=', produk_id)]"/>
                             <field name="harga_satuan" optional="show" widget="monetary"/>
                             <field name="subtotal" optional="show" widget="monetary"/>
                             <field name="expired_date" optional="hide"/>

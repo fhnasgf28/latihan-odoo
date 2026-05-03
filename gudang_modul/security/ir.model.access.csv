@@ -17,3 +17,5 @@ access_gudang_opname_user,gudang.opname user,model_gudang_opname,group_gudang_us
 access_gudang_opname_manager,gudang.opname manager,model_gudang_opname,group_gudang_manager,1,1,1,1
 access_gudang_opname_line_user,gudang.opname.line user,model_gudang_opname_line,group_gudang_user,1,1,1,0
 access_gudang_opname_line_manager,gudang.opname.line manager,model_gudang_opname_line,group_gudang_manager,1,1,1,1
+access_gudang_lot_user,gudang.lot user,model_gudang_lot,group_gudang_user,1,1,1,0
+access_gudang_lot_manager,gudang.lot manager,model_gudang_lot,group_gudang_manager,1,1,1,1

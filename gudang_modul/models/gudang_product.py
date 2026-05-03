@@ -60,6 +60,8 @@ class GudangProduct(models.Model):
         ('habis',     '🔴 Stok Habis'),
         ('berlebih',  '📦 Stok Berlebih'),
     ], string='Status Stok', compute='_compute_status_stok', store=True)
+    last_cost = fields.Float(string='Last Cost', digits=(16, 2), readonly=True, compute='_compute_last_cost', store=True)
+    last_purchase_date = fields.Date(string='Last Purchase Date', readonly=True, compute='_compute_last_cost', store=True)
 
     @api.depends('penerimaan_line_ids.qty_diterima', 'pengeluaran_line_ids.qty_keluar')
     def _compute_stok_tersedia(self):
@@ -102,6 +104,23 @@ class GudangProduct(models.Model):
             if rec.stok_maksimum > 0 and rec.stok_maksimum < rec.stok_minimum:
                 raise ValidationError("Stok maksimum harus lebih besar atau sama dengan stok minimum.")
 
+    @api.depends('penerimaan_line_ids.penerimaan_id.tanggal')
+    def _compute_last_cost(self):
+        for rec in self:
+            # Use existing one2many recordset and sort in Python to avoid
+            # SQL property handling for dotted order ('penerimaan_id.tanggal')
+            log_testing1(logger, f"Menghitung last cost untuk produk ~{rec.name}~ berdasarkan penerimaan terbaru")
+            lines = rec.penerimaan_line_ids.filtered(lambda l: l.harga_satuan)
+            if lines:
+                sorted_lines = sorted(lines, key=lambda l: (l.penerimaan_id.tanggal or l.create_date), reverse=True)
+                line = sorted_lines[0]
+                rec.last_cost = line.harga_satuan
+                rec.last_purchase_date = line.penerimaan_id.tanggal or (line.create_date and fields.Date.to_date(line.create_date))
+            else:
+                rec.last_cost = 0.0
+                rec.last_purchase_date = False
+
+
 class GudangKategoriProduk(models.Model):
     """Sub-model kategori produk"""
     _name = 'gudang.kategori.produk'
@@ -118,5 +137,9 @@ class GudangKategoriProduk(models.Model):
 
     @api.depends('name', 'parent_id.complete_name')
     def _compute_complete_name(self):
-        pass
+        for rec in self:
+            if rec.parent_id:
+                rec.complete_name = f"{rec.parent_id.complete_name} / {rec.name}"
+            else:
+                rec.complete_name = rec.name
 

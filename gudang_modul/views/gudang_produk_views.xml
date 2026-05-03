@@ -58,6 +58,8 @@
                         <group string="Harga">
                             <field name="harga_beli" widget="monetary"/>
                             <field name="harga_jual" widget="monetary"/>
+                            <field name="last_cost" widget="monetary" readonly="1"/>
+                            <field name="last_purchase_date" readonly="1"/>
                         </group>
                     </group>
 

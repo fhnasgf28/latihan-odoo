@@ -33,4 +33,12 @@
         <field name="number_increment">1</field>
     </record>
 
+    <record id="seq_gudang_lot" model="ir.sequence">
+        <field name="name">Sequence Nomor Lot</field>
+        <field name="code">gudang.lot</field>
+        <field name="prefix">LOT/%(year)s/%(month)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
 </odoo>

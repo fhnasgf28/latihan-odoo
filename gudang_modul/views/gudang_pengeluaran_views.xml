@@ -68,6 +68,7 @@
                             <field name="stok_tersedia" optional="show" string="Stok Tersedia"
                                    decoration-danger="stok_tersedia &lt; qty_keluar"/>
                             <field name="qty_keluar" required="1"/>
+                            <field name="lot_id" optional="show" domain="[('produk_id', '=', produk_id), ('qty_sisa', '>', 0)]"/>
                             <field name="harga_satuan" optional="show" widget="monetary"/>
                             <field name="subtotal" optional="show" widget="monetary"/>
                             <field name="keterangan" optional="hide"/>

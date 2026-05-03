@@ -76,7 +76,7 @@ class GudangPengeluaranLine(models.Model):
     # Related fields dari produk
     satuan = fields.Selection(related='produk_id.satuan', string='Satuan', readonly=True)
     stok_tersedia = fields.Float(related='produk_id.stok_tersedia', string='Stok Tersedia', readonly=True)
-
+    lot_id = fields.Many2one('gudang.lot', string='Lot/Batch', domain="[('produk_id', '=', produk_id), ('state', 'not in', ['recall', 'habis']), ('qty_sisa', '>', 0)]")
     # Related fields dari header (pengeluaran_id)
     tanggal = fields.Date(related='pengeluaran_id.tanggal', string='Tanggal', readonly=True, store=True)
     state = fields.Selection(related='pengeluaran_id.state', string='Status', readonly=True)

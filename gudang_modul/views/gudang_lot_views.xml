@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_gudang_lot_list" model="ir.ui.view">
+        <field name="name">gudang.lot.list</field>
+        <field name="model">gudang.lot</field>
+        <field name="arch" type="xml">
+            <list string="Daftar Lot"
+                  decoration-danger="state == 'recall' or is_expired"
+                  decoration-warning="sisa_hari &lt;= 30 and sisa_hari &gt;= 0"
+                  decoration-muted="state == 'habis'">
+                <field name="name"/>
+                <field name="produk_id"/>
+                <field name="satuan"/>
+                <field name="tanggal_produksi" optional="show"/>
+                <field name="tanggal_expired"/>
+                <field name="sisa_hari" string="Sisa Hari"/>
+                <field name="qty_masuk"/>
+                <field name="qty_keluar"/>
+                <field name="qty_sisa"/>
+                <field name="is_expired" widget="boolean_toggle" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'aktif'"
+                       decoration-warning="state == 'expired'"
+                       decoration-danger="state == 'recall'"
+                       decoration-muted="state == 'habis'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_gudang_lot_form" model="ir.ui.view">
+        <field name="name">gudang.lot.form</field>
+        <field name="model">gudang.lot</field>
+        <field name="arch" type="xml">
+            <form string="Detail Lot">
+                <header>
+                    <!-- <button name="action_recall" string="🚨 Tandai RECALL"
+                            type="object" class="btn-danger"
+                            invisible="state == 'recall'"
+                            groups="gudang_modul.group_gudang_manager"/>
+                    <button name="action_aktifkan" string="✅ Aktifkan Kembali"
+                            type="object"
+                            invisible="state == 'aktif'"/>
+                    <button name="action_tandai_habis" string="📭 Tandai Habis"
+                            type="object"
+                            invisible="state != 'aktif'"/> -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="aktif,expired,habis"/>
+                </header>
+                <sheet>
+                    <!-- Alert expired -->
+                    <div class="alert alert-danger" role="alert" invisible="not is_expired">
+                        ⚠️ <strong>Lot ini sudah KADALUARSA!</strong>
+                        Expired sejak: <field name="tanggal_expired" readonly="1" nolabel="1"/>
+                    </div>
+                    <!-- Alert hampir expired -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="is_expired or sisa_hari &gt; 30 or sisa_hari &lt; 0">
+                        ⏳ <strong>Perhatian:</strong> Lot ini akan expired dalam
+                        <field name="sisa_hari" readonly="1" nolabel="1"/> hari lagi!
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nomor Lot..."/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Informasi Lot">
+                            <field name="produk_id"/>
+                            <field name="satuan" readonly="1"/>
+                            <field name="nama_supplier"/>
+                            <field name="no_batch_supplier"/>
+                        </group>
+                        <group string="Tanggal">
+                            <field name="tanggal_produksi"/>
+                            <field name="tanggal_expired"/>
+                            <field name="sisa_hari" readonly="1"/>
+                            <field name="is_expired" readonly="1" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <group string="📊 Stok Lot Ini">
+                        <group>
+                            <field name="qty_masuk" readonly="1"/>
+                            <field name="qty_keluar" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="qty_sisa" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <field name="catatan" placeholder="Catatan tambahan lot ini..."/>
+
+                    <notebook>
+                        <page string="📥 Riwayat Masuk">
+                            <field name="penerimaan_line_ids" readonly="1">
+                                <list>
+                                    <field name="penerimaan_id"/>
+                                    <!-- <field name="penerimaan_id.tanggal" string="Tanggal"/>
+                                    <field name="penerimaan_id.nama_supplier" string="Supplier"/> -->
+                                    <field name="qty_diterima"/>
+                                    <field name="satuan"/>
+                                    <!-- <field name="penerimaan_id.state" widget="badge"/> -->
+                                </list>
+                            </field>
+                        </page>
+                        <page string="📤 Riwayat Keluar">
+                            <field name="pengeluaran_line_ids" readonly="1">
+                                <list>
+                                    <field name="pengeluaran_id"/>
+                                    <!-- <field name="pengeluaran_id.tanggal" string="Tanggal"/>
+                                    <field name="pengeluaran_id.nama_penerima" string="Penerima"/> -->
+                                    <field name="qty_keluar"/>
+                                    <field name="satuan"/>
+                                    <!-- <field name="pengeluaran_id.state" widget="badge"/> -->
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <!-- <record id="view_gudang_lot_search" model="ir.ui.view">
+        <field name="name">gudang.lot.search</field>
+        <field name="model">gudang.lot</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Nomor Lot"/>
+                <field name="produk_id"/>
+                <field name="nama_supplier"/>
+                <filter string="Aktif"       name="aktif"    domain="[('state','=','aktif')]"/>
+                <filter string="Expired"     name="expired"  domain="[('is_expired','=',True)]"/>
+                <filter string="Recall"      name="recall"   domain="[('state','=','recall')]"/>
+                <filter string="Habis"       name="habis"    domain="[('state','=','habis')]"/>
+                <separator/>
+                <filter string="Hampir Expired (30 hari)"
+                        name="hampir_expired"
+                        domain="[('sisa_hari','&gt;=',0),('sisa_hari','&lt;=',30)]"/>
+                <group string="Group By">
+                    <filter string="Produk"  name="by_produk" context="{'group_by':'produk_id'}"/>
+                    <filter string="Status"  name="by_state"  context="{'group_by':'state'}"/>
+                    <filter string="Supplier" name="by_supplier" context="{'group_by':'nama_supplier'}"/>
+                </group>
+            </search>
+        </field>
+    </record> -->
+
+    <!-- ACTION -->
+    <record id="action_gudang_lot" model="ir.actions.act_window">
+        <field name="name">Lot / Batch Produk</field>
+        <field name="res_model">gudang.lot</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="search_view_id" ref="view_gudang_lot_search"/> -->
+        <field name="context">{'search_default_aktif': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada lot. Lot akan otomatis terbuat saat penerimaan barang.
+            </p>
+        </field>
+    </record>
+
+</odoo>
