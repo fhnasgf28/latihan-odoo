@@ -36,16 +36,16 @@
         <field name="arch" type="xml">
             <form string="Detail Lot">
                 <header>
-                    <!-- <button name="action_recall" string="🚨 Tandai RECALL"
+                    <button name="action_recall" string="🚨 Tandai RECALL"
                             type="object" class="btn-danger"
                             invisible="state == 'recall'"
                             groups="gudang_modul.group_gudang_manager"/>
-                    <button name="action_aktifkan" string="✅ Aktifkan Kembali"
+                    <button name="action_set_aktif" string="✅ Aktifkan Kembali"
                             type="object"
                             invisible="state == 'aktif'"/>
                     <button name="action_tandai_habis" string="📭 Tandai Habis"
                             type="object"
-                            invisible="state != 'aktif'"/> -->
+                            invisible="state != 'aktif'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="aktif,expired,habis"/>
                 </header>
@@ -63,7 +63,7 @@
                     </div>
 
                     <div class="oe_title">
-                        <h1><field name="name" placeholder="Nomor Lot..."/></h1>
+                        <h1><field name="name" readonly="1"/></h1>
                     </div>
 
                     <group>

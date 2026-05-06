@@ -1,11 +1,21 @@
 from odoo import models, fields, api
 from datetime import date
+from odoo.exceptions import ValidationError
 
 class GudangLot(models.Model):
     _name = 'gudang.lot'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Lot/Batch Produk'
 
-    name = fields.Char(string='Nomor Lot', required=True, copy=False, tracking=True, index=True)
+    name = fields.Char(
+        string='Nomor Lot',
+        required=True,
+        default='New',
+        readonly=True,
+        copy=False,
+        tracking=True,
+        index=True,
+    )
     produk_id = fields.Many2one('gudang.produk', string='Produk', required=True, ondelete='restrict', tracking=True, index=True)
     tanggal_expired = fields.Date(string='Tanggal Kadaluarsa', tracking=True)
     qty = fields.Float(string='Qty', required=True, default=1.0)
@@ -56,6 +66,44 @@ class GudangLot(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if not vals.get('name'):
+            if not vals.get('name') or vals.get('name') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('gudang.lot') or 'New Lot'
         return super().create(vals_list)
+
+    def action_recall(self):
+        for rec in self:
+            rec.state = 'recall'
+            # chatter
+            rec.message_post(body=f"Lot {rec.name} telah di-RECALL. Semua transaksi terkait lot ini harus diperiksa kembali.")
+    
+    def action_set_aktif(self):
+        for rec in self:
+            rec.state = 'aktif'
+            # chatter
+            rec.message_post(body=f"Lot {rec.name} telah di-set AKTIF kembali.")
+    
+    def action_tandai_habis(self):
+        for rec in self:
+            rec.state = 'habis'
+            # chatter
+            rec.message_post(body=f"Lot {rec.name} telah ditandai HABIS.")
+    
+    def name_get(self):
+        result = []
+        for rec in self:
+            name = f"{rec.name} - {rec.produk_id.name}"
+            if rec.tanggal_expired:
+                name += f" (Exp: {rec.tanggal_expired})"
+            result.append((rec.id, name))
+        return result
+
+    @api.constrains('tanggal_expired', 'tanggal_produksi')
+    def _check_dates(self):
+        for rec in self:
+            if rec.tanggal_expired and rec.tanggal_produksi:
+                if rec.tanggal_expired < rec.tanggal_produksi:
+                    raise ValidationError("Tanggal Kadaluarsa tidak boleh lebih awal dari Tanggal Produksi.")
+    
+    _sql_constraints = [
+        ('name_produk_uniq', 'unique(name, produk_id)', 'Nomor Lot harus unik untuk setiap produk!'),
+    ]

@@ -67,6 +67,10 @@ class GudangPenerimaan(models.Model):
     )
     catatan = fields.Text(string='Catatan')
     petugas_id = fields.Many2one('res.users', string='Petugas', default=lambda self: self.env.user)
+    lokasi_sekarang_id = fields.Many2one('gudang.lokasi', string='Lokasi Saat Ini', compute='_compute_lokasi_sekarang', store=True)
+    count_penerimaan = fields.Integer(string='Jumlah Penerimaan', compute='_compute_counts')
+    count_pengeluaran = fields.Integer(string='Jumlah Pengeluaran Terkait', compute='_compute_counts')
+    riwayat_ids = fields.One2many('gudang.lot.riwayat', 'lot_id', string='Riwayat Pergerakan')
 
     @api.depends('line_ids.produk_id', 'line_ids.qty_diterima', 'line_ids.harga_satuan')
     def _compute_total(self):
@@ -85,6 +89,24 @@ class GudangPenerimaan(models.Model):
         records = super().create(vals_list)
         log_testing3(logger, f"membuat penerimaan baru dengan nomor: {[rec.nomor for rec in records]}~")
         return records
+
+    @api.depends(
+    'penerimaan_line_ids.lokasi_tujuan_id',
+    'penerimaan_line_ids.penerimaan_id.state',
+    'pengeluaran_line_ids.lokasi_asal_id',
+    'pengeluaran_line_ids.pengeluaran_id.state')
+    def _compute_lokasi_sekarang(self):
+        for rec in self:
+            if rec.qty_sisa <= 0:
+                rec.lokasi_sekarang_id = False
+                continue
+            last_line = rec.penerimaan_line_ids.filtered(lambda l: l.penerimaan_id.state == 'done').sorted(key=lambda l: l.penerimaan_id.tanggal, reverse=True)
+            rec.lokasi_sekarang_id = last_line[0].lokasi_tujuan_id if last_line else False
+    
+    def _compute_counts(self):
+        for rec in self:
+            rec.count_penerimaan = len(rec.penerimaan_line_ids.mapped('penerimaan_id'))
+            rec.count_pengeluaran = len(rec.pengeluaran_line_ids.mapped('pengeluaran_id'))
 
     def action_konfirmasi(self):
         for rec in self: 
